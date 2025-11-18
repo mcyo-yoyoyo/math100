@@ -680,18 +680,17 @@ async function renderHistoryList(targetElement) {
         /**
          * 显示历史得分页面
          */
-        async function showHistoryPage() {
-             // 隐藏其他所有区域
-             elements.setupArea.classList.add('hidden');
-             elements.gameArea.classList.add('hidden');
-             elements.resultArea.classList.add('hidden');
+async function showHistoryPage() {
+    elements.setupArea.classList.add('hidden');
+    elements.gameArea.classList.add('hidden');
+    elements.resultArea.classList.add('hidden');
+    elements.historyPage.classList.remove('hidden');
 
-             // 显示历史页面
-             elements.historyPage.classList.remove('hidden');
+    // 显示加载中
+    elements.historyListOnPage.innerHTML = '<p style="text-align:center; color:#666;">加载中...</p>';
 
-             // 渲染历史记录到新页面
-             await renderHistoryList(elements.historyListOnPage);
-        }
+    await renderHistoryList(elements.historyListOnPage);
+}
 
         /**
          * 返回设置页 (首页)，并刷新历史记录
@@ -1104,4 +1103,5 @@ async function renderHistoryList(targetElement) {
     </script>
 </body>
 </html>
+
 
