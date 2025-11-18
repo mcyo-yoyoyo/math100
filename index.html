@@ -457,23 +457,23 @@
     </div>
 <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"></script>
 
-    <script>
-        // ⚠️ 【重要】请将这两个占位符替换成您自己的真实 App ID 和 App Key
-        const LEANCLOUD_APP_ID = 'gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz';
-        const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
-        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
+    <script>
+        // ⚠️ 【重要】请将这两个占位符替换成您自己的真实 App ID 和 App Key
+        const LEANCLOUD_APP_ID = 'gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz';
+        const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
+        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
 
-        if (typeof AV !== 'undefined') {
-            // 简化初始化，移除 serverURL，让 SDK 自动判断，更稳定
-            AV.init({
-                appId: LEANCLOUD_APP_ID,
-                appKey: LEANCLOUD_APP_KEY
-            });
-            console.log("LeanCloud SDK 初始化成功!");
-        } else {
-            console.error("LeanCloud SDK 加载失败!");
-        }
-    </script>
+        if (typeof AV !== 'undefined') {
+            // 简化初始化，移除 serverURL，让 SDK 自动判断，更稳定
+            AV.init({
+                appId: LEANCLOUD_APP_ID,
+                appKey: LEANCLOUD_APP_KEY
+            });
+            console.log("LeanCloud SDK 初始化成功!");
+        } else {
+            console.error("LeanCloud SDK 加载失败!");
+        }
+    </script>
     <div class="particles" id="particles"></div>
 
     <script>
@@ -555,35 +555,44 @@
       /**
          * 保存单次挑战记录 (LeanCloud版本 - 异步)
          */
-async function saveChallengeRecord() {
-    if (typeof AV === 'undefined') {
-        console.error("LeanCloud 未初始化，无法保存记录。");
-        return;
-    }
+        async function saveChallengeRecord() {
+            if (typeof AV === 'undefined') {
+                console.error("LeanCloud 未初始化，无法保存记录。");
+                return;
+            }
+            
+            // 记录本次挑战的数据（结构与之前保持一致，便于查阅）
+            const recordData = {
+                date: new Date().toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-'),
+                score: gameState.score,
+                totalQuestions: gameState.questionCount,
+                timeSpent: gameState.timeLimit - gameState.timeLeft,
+                // 仅存储错题回顾所需的核心数据
+                results: gameState.questions.map((q, index) => ({
+                    q: `${q.num1} ${q.operation} ${q.num2} = ?`,
+                    correctAnswer: q.answer,
+                    userAnswer: gameState.userAnswers[index]
+                }))
+            };
 
-    const Record = AV.Object.extend(LEANCLOUD_CLASS_NAME);
-    const record = new Record();
+            // 1. 创建一个新的 LeanCloud 记录对象
+            const Record = AV.Object.extend(LEANCLOUD_CLASS_NAME);
+            const record = new Record();
+            record.set(recordData); // 将数据设置到对象中
 
-    // 只保存核心数据，不要手动设置时间
-    const recordData = {
-        score: gameState.score,
-        totalQuestions: gameState.questionCount,
-        timeSpent: gameState.timeLimit - gameState.timeLeft,
-        results: gameState.questions.map((q, index) => ({
-            q: `${q.num1} ${q.operation} ${q.num2} = ?`,
-            correctAnswer: q.answer,
-            userAnswer: gameState.userAnswers[index]
-        }))
-        // 不要手动设置 date，LeanCloud 有 createdAt
-    };
-
-    try {
-        await record.save();
-        console.log('挑战记录保存成功！objectId:', record.id);
-    } catch (error) {
-        console.error('保存挑战记录失败:', error);
-    }
-}
+            try {
+                // 2. 提交到 LeanCloud，await 等待保存完成
+                await record.save(); 
+                console.log('挑战记录保存成功！已同步至云端。');
+            } catch (error) {
+                console.error('保存挑战记录到 LeanCloud 失败:', error);
+            }
             
             // 注意：因为是异步保存，这里不再需要手动调用 renderHistoryList，它会在 showHistoryPage 时被调用
         }
@@ -592,42 +601,34 @@ async function saveChallengeRecord() {
          * 渲染历史记录列表 (通用函数)
          * @param {HTMLElement} targetElement - 要渲染到的目标<ul>元素
          */
-async function renderHistoryList(targetElement) {
-    const history = await loadHistory();
-    targetElement.innerHTML = '';
+            async function renderHistoryList(targetElement) { // 增加 async 关键字
+            const history = await loadHistory(); // 增加 await 关键字
+            targetElement.innerHTML = '';
 
-    if (history.length === 0) {
-        targetElement.innerHTML = '<p style="text-align:center; font-size:1rem; color:#999;">暂无历史记录</p>';
-        return;
-    }
+            if (history.length === 0) {
+                targetElement.innerHTML = '<p style="text-align:center; font-size:1rem; color:#999;">暂无历史记录</p>';
+                return;
+            }
 
-    history.forEach((record, index) => {
-        // ✅ 使用 LeanCloud 的 createdAt（服务器时间）
-        const createdAt = new Date(record.createdAt);
-        const dateStr = createdAt.toLocaleString('zh-CN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        }).replace(/\//g, '-');
+            history.forEach((record, index) => {
+                const totalCorrect = record.results.filter(r => r.userAnswer === r.correctAnswer).length;
+                const totalIncorrect = record.results.filter(r => r.userAnswer !== r.correctAnswer && r.userAnswer !== null).length;
 
-        const totalCorrect = record.results.filter(r => r.userAnswer === r.correctAnswer).length;
+                const item = document.createElement('li');
+                item.className = 'history-item';
+                item.dataset.index = index; // 存储索引用于查找详情
 
-        const item = document.createElement('li');
-        item.className = 'history-item';
-        item.dataset.index = index;
+                item.innerHTML = `
+                    <span>📅 ${record.date}</span>
+                    <span>${totalCorrect}/${record.totalQuestions}题 | 耗时${record.timeSpent}s</span>
+                    <span class="history-score">得分: ${record.score}</span>
+                `;
 
-        item.innerHTML = `
-            <span>📅 ${dateStr}</span>
-            <span>${totalCorrect}/${record.totalQuestions}题 | 耗时${record.timeSpent}s</span>
-            <span class="history-score">得分: ${record.score}</span>
-        `;
-
-        item.addEventListener('click', () => showHistoryDetail(record));
-        targetElement.appendChild(item);
-    });
-}
+                // 添加点击事件，显示错题详情
+                item.addEventListener('click', () => showHistoryDetail(record));
+                targetElement.appendChild(item);
+            });
+        }
 
         /**
          * 显示某次历史挑战的错题回顾详情
@@ -947,17 +948,17 @@ async function renderHistoryList(targetElement) {
         }
 
         async function endGame() { 
-            gameState.isGameActive = false;
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
+            gameState.isGameActive = false;
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
 
-            // 保存本次挑战记录
-            await saveChallengeRecord();
+            // 保存本次挑战记录
+            await saveChallengeRecord();
 
-            elements.gameArea.classList.add('hidden');
-            showResults();
-        }
+            elements.gameArea.classList.add('hidden');
+            showResults();
+        }
 
         function showResults() {
             elements.resultArea.classList.remove('hidden');
