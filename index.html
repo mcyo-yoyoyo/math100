@@ -403,7 +403,7 @@
             <div class="settings">
                 <div class="setting-item">
                     <label for="timeLimit">答题时间（秒）：</label>
-                    <input type="number" id="timeLimit" min="10" max="300" value="60">
+                    <input type="number" id="timeLimit" min="10" max="300" value="30">
                 </div>
                 <div class="setting-item">
                     <label for="questionCount">题目数量：</label>
@@ -426,7 +426,7 @@
 
         <!-- 游戏进行区域 -->
         <div id="gameArea" class="hidden">
-            <div class="timer" id="timer">60</div>
+            <div class="timer" id="timer">30</div>
             <div class="score" id="score">得分: 0</div>
             <div class="progress" id="progress">第1题/共10题</div>
             <div class="question" id="question">25 + 37 = ?</div>
@@ -478,7 +478,7 @@
     <script>
         // 游戏状态
         let gameState = {
-            timeLimit: 60,
+            timeLimit: 30,
             questionCount: 10,
             currentQuestion: 0,
             score: 0,
@@ -866,7 +866,7 @@
         }
 
         function startGame() {
-            gameState.timeLimit = parseInt(elements.timeLimit.value) || 60;
+            gameState.timeLimit = parseInt(elements.timeLimit.value) || 30;
             gameState.questionCount = parseInt(elements.questionCount.value) || 10;
             gameState.currentQuestion = 0;
             gameState.score = 0;
@@ -1104,5 +1104,6 @@
     </script>
 </body>
 </html>
+
 
 
