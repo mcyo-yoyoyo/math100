@@ -947,14 +947,14 @@
             }
         }
 
-        async function endGame() { // <-- 变化点 1: 在函数前添加 async
+        async function endGame() { 
             gameState.isGameActive = false;
             if (gameState.timer) {
                 clearInterval(gameState.timer);
             }
 
             // 保存本次挑战记录
-            await saveChallengeRecord(); // <-- 变化点 2: 在函数前添加 await
+            await saveChallengeRecord();
 
             elements.gameArea.classList.add('hidden');
             showResults();
@@ -1105,6 +1105,7 @@
     </script>
 </body>
 </html>
+
 
 
 
