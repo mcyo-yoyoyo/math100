@@ -464,17 +464,17 @@
         const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
 
         if (typeof AV !== 'undefined') {
-            AV.init({
-                appId: LEANCLOUD_APP_ID,
-                appKey: LEANCLOUD_APP_KEY,
-                serverURLs: {
-                engine: 'https://gnrrmmiw.lc-cn-n1-shared.com' // 注意：是 engine
-                } // ← 这里补上 serverURLs 的右大括号
-            });
-            console.log("LeanCloud SDK 初始化成功!");
-        } else {
-            console.error("LeanCloud SDK 加载失败!");
+        AV.init({
+        appId: LEANCLOUD_APP_ID,
+        appKey: LEANCLOUD_APP_KEY,
+        serverURLs: {
+            engine: 'https://gnrrmmiw.lc-cn-n1-shared.com' // 可以保留注释，但建议移行
         }
+    });
+    console.log("LeanCloud SDK 初始化成功!");
+} else {
+    console.error("LeanCloud SDK 加载失败!");
+}
     </script>
     <div class="particles" id="particles"></div>
 
@@ -1107,6 +1107,7 @@
     </script>
 </body>
 </html>
+
 
 
 
