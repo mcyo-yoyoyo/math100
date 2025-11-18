@@ -464,505 +464,644 @@
         const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
 
         if (typeof AV !== 'undefined') {
-            // 简化初始化，移除 serverURL，让 SDK 自动判断，更稳定
-            AV.init({
-                appId: LEANCLOUD_APP_ID,
-                appKey: LEANCLOUD_APP_KEY
-            });
-            console.log("LeanCloud SDK 初始化成功!");
-        } else {
-            console.error("LeanCloud SDK 加载失败!");
-        }
+        AV.init({
+        appId: LEANCLOUD_APP_ID,
+        appKey: LEANCLOUD_APP_KEY,
+        serverURL: 'https://gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz.apiclouds.com'
+    });
+    console.log("LeanCloud SDK 初始化成功!");
+} else {
+    console.error("LeanCloud SDK 加载失败!");
+}
     </script>
     <div class="particles" id="particles"></div>
 
-<script>
-    // 游戏状态
-    let gameState = {
-        timeLimit: 30,
-        questionCount: 10,
-        currentQuestion: 0,
-        score: 0,
-        questions: [],
-        userAnswers: [],
-        timer: null,
-        timeLeft: 0,
-        isGameActive: false
-    };
-
-    // DOM元素
-    const elements = {
-        timeLimit: document.getElementById('timeLimit'),
-        questionCount: document.getElementById('questionCount'),
-        setupArea: document.getElementById('setupArea'),
-        gameArea: document.getElementById('gameArea'),
-        resultArea: document.getElementById('resultArea'),
-        historyPage: document.getElementById('historyPage'),
-        historyListOnPage: document.getElementById('historyListOnPage'),
-        historyBtn: document.getElementById('historyBtn'),
-
-        timer: document.getElementById('timer'),
-        score: document.getElementById('score'),
-        progress: document.getElementById('progress'),
-        question: document.getElementById('question'),
-        answerInput: document.getElementById('answerInput'),
-        feedback: document.getElementById('feedback'),
-        startBtn: document.getElementById('startBtn'),
-        submitBtn: document.getElementById('submitBtn'),
-        nextBtn: document.getElementById('nextBtn'),
-        encouragement: document.getElementById('encouragement'),
-        review: document.getElementById('review'),
-        particles: document.getElementById('particles'),
-        readRulesBtn: document.getElementById('readRulesBtn')
-    };
-
-    // =========================================================
-    // 🎯 历史记录管理功能 (已修复)
-    // =========================================================
-
-    async function loadHistory() {
-        if (typeof AV === 'undefined') {
-            console.error("LeanCloud 未初始化或加载失败");
-            return []; 
-        }
-
-        const query = new AV.Query(LEANCLOUD_CLASS_NAME);
-        query.descending('createdAt');
-        query.limit(20);
-
-        try {
-            const results = await query.find();
-            return results.map(item => item.toJSON());
-        } catch (error) {
-            console.error("从 LeanCloud 加载历史记录失败:", error);
-            return [];
-        }
-    }
-
-    async function saveChallengeRecord() {
-        if (typeof AV === 'undefined') {
-            console.error("LeanCloud 未初始化，无法保存记录。");
-            return;
-        }
-        
-        const recordData = {
-            date: new Date().toLocaleString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            }).replace(/\//g, '-'),
-            score: gameState.score,
-            totalQuestions: gameState.questionCount,
-            timeSpent: gameState.timeLimit - gameState.timeLeft,
-            results: gameState.questions.map((q, index) => ({
-                q: `${q.num1} ${q.operation} ${q.num2} = ?`,
-                correctAnswer: q.answer,
-                userAnswer: gameState.userAnswers[index]
-            }))
+    <script>
+        // 游戏状态
+        let gameState = {
+            timeLimit: 30,
+            questionCount: 10,
+            currentQuestion: 0,
+            score: 0,
+            questions: [],
+            userAnswers: [],
+            timer: null,
+            timeLeft: 0,
+            isGameActive: false
         };
 
-        const Record = AV.Object.extend(LEANCLOUD_CLASS_NAME);
-        const record = new Record();
-        record.set(recordData);
+        // DOM元素
+        const elements = {
+            timeLimit: document.getElementById('timeLimit'),
+            questionCount: document.getElementById('questionCount'),
+            setupArea: document.getElementById('setupArea'),
+            gameArea: document.getElementById('gameArea'),
+            resultArea: document.getElementById('resultArea'),
+            // 新增历史页面DOM元素
+            historyPage: document.getElementById('historyPage'),
+            historyListOnPage: document.getElementById('historyListOnPage'),
+            historyBtn: document.getElementById('historyBtn'),
 
-        try {
-            await record.save(); 
-            console.log('挑战记录保存成功！已同步至云端。');
-        } catch (error) {
-            console.error('保存挑战记录到 LeanCloud 失败:', error);
+            timer: document.getElementById('timer'),
+            score: document.getElementById('score'),
+            progress: document.getElementById('progress'),
+            question: document.getElementById('question'),
+            answerInput: document.getElementById('answerInput'),
+            feedback: document.getElementById('feedback'),
+            startBtn: document.getElementById('startBtn'),
+            submitBtn: document.getElementById('submitBtn'),
+            nextBtn: document.getElementById('nextBtn'),
+            encouragement: document.getElementById('encouragement'),
+            review: document.getElementById('review'),
+            particles: document.getElementById('particles'),
+            readRulesBtn: document.getElementById('readRulesBtn'),
+            settings: document.querySelector('.settings'),
+            rules: document.querySelector('.rules')
+            // 注意：原 historyList 元素被移除了，因为我们现在直接操作 historyListOnPage
+        };
+
+        // =========================================================
+        // 🎯 历史记录管理功能 (修改以支持新页面)
+        // =========================================================
+
+        // 原始的 STORAGE_KEY 不再需要，因为我们使用 LeanCloud 存储
+
+        /**
+         * 加载历史记录 (LeanCloud版本 - 异步)
+         * @returns {Promise<Array>} 历史记录数组
+         */
+        async function loadHistory() {
+            if (typeof AV === 'undefined') {
+                console.error("LeanCloud 未初始化或加载失败");
+                return []; 
+            }
+
+            const query = new AV.Query(LEANCLOUD_CLASS_NAME);
+            query.descending('createdAt'); // 按创建时间倒序排列
+            query.limit(20); // 仅查询最新的 20 条记录
+
+            try {
+                // 等待查询结果
+                const results = await query.find();
+                // 将 LeanCloud 对象转换为普通的 JavaScript 对象数组
+                const history = results.map(item => item.toJSON());
+                return history;
+            } catch (error) {
+                console.error("从 LeanCloud 加载历史记录失败:", error);
+                return [];
+            }
         }
-    }
 
-    async function renderHistoryList(targetElement) {
-        const history = await loadHistory();
-        targetElement.innerHTML = '';
+      /**
+         * 保存单次挑战记录 (LeanCloud版本 - 异步)
+         */
+        async function saveChallengeRecord() {
+            if (typeof AV === 'undefined') {
+                console.error("LeanCloud 未初始化，无法保存记录。");
+                return;
+            }
+            
+            // 记录本次挑战的数据（结构与之前保持一致，便于查阅）
+            const recordData = {
+                date: new Date().toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }).replace(/\//g, '-'),
+                score: gameState.score,
+                totalQuestions: gameState.questionCount,
+                timeSpent: gameState.timeLimit - gameState.timeLeft,
+                // 仅存储错题回顾所需的核心数据
+                results: gameState.questions.map((q, index) => ({
+                    q: `${q.num1} ${q.operation} ${q.num2} = ?`,
+                    correctAnswer: q.answer,
+                    userAnswer: gameState.userAnswers[index]
+                }))
+            };
 
-        if (history.length === 0) {
-            targetElement.innerHTML = '<p style="text-align:center; font-size:1rem; color:#999;">暂无历史记录</p>';
-            return;
+            // 1. 创建一个新的 LeanCloud 记录对象
+            const Record = AV.Object.extend(LEANCLOUD_CLASS_NAME);
+            const record = new Record();
+            record.set(recordData); // 将数据设置到对象中
+
+            try {
+                // 2. 提交到 LeanCloud，await 等待保存完成
+                await record.save(); 
+                console.log('挑战记录保存成功！已同步至云端。');
+            } catch (error) {
+                console.error('保存挑战记录到 LeanCloud 失败:', error);
+            }
+            
+            // 注意：因为是异步保存，这里不再需要手动调用 renderHistoryList，它会在 showHistoryPage 时被调用
         }
 
-        history.forEach((record, index) => {
-            const totalCorrect = record.results.filter(r => r.userAnswer === r.correctAnswer).length;
-            const totalIncorrect = record.results.filter(r => r.userAnswer !== r.correctAnswer && r.userAnswer !== null).length;
+        /**
+         * 渲染历史记录列表 (通用函数)
+         * @param {HTMLElement} targetElement - 要渲染到的目标<ul>元素
+         */
+            async function renderHistoryList(targetElement) { // 增加 async 关键字
+            const history = await loadHistory(); // 增加 await 关键字
+            targetElement.innerHTML = '';
 
-            const item = document.createElement('li');
-            item.className = 'history-item';
-            item.dataset.index = index;
+            if (history.length === 0) {
+                targetElement.innerHTML = '<p style="text-align:center; font-size:1rem; color:#999;">暂无历史记录</p>';
+                return;
+            }
 
-            item.innerHTML = `
-                <span>📅 ${record.date}</span>
-                <span>${totalCorrect}/${record.totalQuestions}题 | 耗时${record.timeSpent}s</span>
-                <span class="history-score">得分: ${record.score}</span>
-            `;
+            history.forEach((record, index) => {
+                const totalCorrect = record.results.filter(r => r.userAnswer === r.correctAnswer).length;
+                const totalIncorrect = record.results.filter(r => r.userAnswer !== r.correctAnswer && r.userAnswer !== null).length;
 
-            item.addEventListener('click', () => showHistoryDetail(record));
-            targetElement.appendChild(item);
-        });
-    }
+                const item = document.createElement('li');
+                item.className = 'history-item';
+                item.dataset.index = index; // 存储索引用于查找详情
 
-    function showHistoryDetail(record) {
-        elements.setupArea.classList.add('hidden');
-        elements.gameArea.classList.add('hidden');
-        elements.historyPage.classList.add('hidden');
-        elements.resultArea.classList.remove('hidden');
+                item.innerHTML = `
+                    <span>📅 ${record.date}</span>
+                    <span>${totalCorrect}/${record.totalQuestions}题 | 耗时${record.timeSpent}s</span>
+                    <span class="history-score">得分: ${record.score}</span>
+                `;
 
-        elements.encouragement.textContent = `回顾: ${record.date} (${record.score}分)`;
-        elements.encouragement.className = `encouragement good`;
+                // 添加点击事件，显示错题详情
+                item.addEventListener('click', () => showHistoryDetail(record));
+                targetElement.appendChild(item);
+            });
+        }
 
-        let reviewHTML = '<div class="review-detail"><h3>错题回顾详情</h3>';
+        /**
+         * 显示某次历史挑战的错题回顾详情
+         * @param {Object} record - 单次历史记录对象
+         */
+        function showHistoryDetail(record) {
+            // 隐藏所有可能显示的区域
+            elements.setupArea.classList.add('hidden');
+            elements.gameArea.classList.add('hidden');
+            elements.historyPage.classList.add('hidden'); // 隐藏历史页面
+            elements.resultArea.classList.remove('hidden'); // 显示结果区域用于展示详情
 
-        record.results.forEach((r, i) => {
-            const correct = r.userAnswer === r.correctAnswer;
-            const unanswered = r.userAnswer === null;
+            elements.encouragement.textContent = `回顾: ${record.date} (${record.score}分)`;
+            elements.encouragement.className = `encouragement good`; // 使用 good 类作为默认回顾样式
 
-            let className = '';
-            let statusText = '';
+            // 使用新的 review-detail 容器包裹错题
+            let reviewHTML = '<div class="review-detail"><h3>错题回顾详情</h3>';
 
-            if (unanswered) {
-                className = 'unanswered';
-                statusText = `未作答，正确答案: ${r.correctAnswer}`;
-            } else if (correct) {
-                className = 'correct';
-                statusText = '✓ 正确!';
+            record.results.forEach((r, i) => {
+                const correct = r.userAnswer === r.correctAnswer;
+                const unanswered = r.userAnswer === null;
+
+                let className = '';
+                let statusText = '';
+
+                if (unanswered) {
+                    className = 'unanswered';
+                    statusText = `未作答，正确答案: ${r.correctAnswer}`;
+                } else if (correct) {
+                    className = 'correct';
+                    statusText = '✓ 正确!';
+                } else {
+                    className = 'incorrect';
+                    statusText = `✗ 你的答案: ${r.userAnswer}, 正确答案: ${r.correctAnswer}`;
+                }
+
+                // 使用 review-item, review-question, review-answer 结构
+                reviewHTML += `
+                    <div class="review-item ${className}">
+                        <div class="review-question">Q${i + 1}: ${r.q}</div>
+                        <div class="review-answer">${statusText}</div>
+                    </div>
+                `;
+            });
+            reviewHTML += '</div>'; // 关闭 review-detail 容器
+
+            elements.review.innerHTML = reviewHTML;
+        }
+
+        /**
+         * 显示历史得分页面
+         */
+        async function showHistoryPage() {
+             // 隐藏其他所有区域
+             elements.setupArea.classList.add('hidden');
+             elements.gameArea.classList.add('hidden');
+             elements.resultArea.classList.add('hidden');
+
+             // 显示历史页面
+             elements.historyPage.classList.remove('hidden');
+
+             // 渲染历史记录到新页面
+             await renderHistoryList(elements.historyListOnPage);
+        }
+
+        /**
+         * 返回设置页 (首页)，并刷新历史记录
+         */
+        function returnToSetup() {
+            // 隐藏所有其他区域
+            elements.gameArea.classList.add('hidden');
+            elements.resultArea.classList.add('hidden');
+            elements.historyPage.classList.add('hidden');
+
+            // 显示首页区域
+            elements.setupArea.classList.remove('hidden');
+
+            // 确保开始按钮可见
+            elements.startBtn.classList.remove('hidden');
+            // 确保历史按钮可见
+            elements.historyBtn.classList.remove('hidden');
+
+            // 清除结果页的临时回顾内容 (如果有的话)
+            elements.encouragement.textContent = '';
+            elements.review.innerHTML = '';
+
+            // 如果需要，在返回首页时也刷新首页可能存在的历史列表
+            // renderHistoryList(); // 假设有一个 renderHistoryList() 是针对首页的旧版本
+        }
+
+
+        // =========================================================
+        // 游戏核心逻辑 (修复语音功能)
+        // =========================================================
+
+        // 音效系统
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playCorrectSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        function playIncorrectSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        function playVictorySound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C
+
+            frequencies.forEach((freq, index) => {
+                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
+            });
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.8);
+        }
+
+        // 修复语音播报功能
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                // 等待语音引擎准备就绪
+                if (speechSynthesis.speaking) {
+                    speechSynthesis.cancel(); // 取消之前的语音
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.8; // 语速稍慢，便于理解
+                utterance.pitch = 1.2; // 音调稍高，更亲切
+
+                // 语音播报前的准备
+                setTimeout(() => {
+                    speechSynthesis.speak(utterance);
+                }, 50); // 延迟50ms确保语音引擎已准备
+            }
+        }
+
+        // 读取游戏规则
+        function readRules() {
+            const rules = [
+                "欢迎来到小百合数学达人养成记！",
+                "①每答对一题得10分；②答对题目有音效和动画鼓励；③游戏结束后可查看错题回顾；④时间到或完成所有题目后结束游戏；⑤需要在规定时间内完成100以内加减法题目！"
+            ];
+
+            let delay = 0;
+            rules.forEach((rule, index) => {
+                setTimeout(() => {
+                    speak(rule);
+                }, delay);
+                delay += rule.length * 150; // 根据文本长度调整延迟
+            });
+        }
+
+        // 生成随机题目
+        function generateQuestion() {
+            const operation = Math.random() > 0.5 ? '+' : '-';
+            let num1, num2, answer;
+
+            if (operation === '+') {
+                num1 = Math.floor(Math.random() * 100) + 1;
+                num2 = Math.floor(Math.random() * (100 - num1)) + 1;
+                answer = num1 + num2;
             } else {
-                className = 'incorrect';
-                statusText = `✗ 你的答案: ${r.userAnswer}, 正确答案: ${r.correctAnswer}`;
+                num1 = Math.floor(Math.random() * 100) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1;
+                answer = num1 - num2;
             }
 
-            reviewHTML += `
-                <div class="review-item ${className}">
-                    <div class="review-question">Q${i + 1}: ${r.q}</div>
-                    <div class="review-answer">${statusText}</div>
-                </div>
-            `;
-        });
-        reviewHTML += '</div>';
+            return {
+                num1,
+                num2,
+                operation,
+                answer
+            };
+        }
 
-        elements.review.innerHTML = reviewHTML;
-    }
-
-    // ✅ 关键修复：showHistoryPage 必须是 async 并 await renderHistoryList
-    async function showHistoryPage() {
-        elements.setupArea.classList.add('hidden');
-        elements.gameArea.classList.add('hidden');
-        elements.resultArea.classList.add('hidden');
-        elements.historyPage.classList.remove('hidden');
-
-        // ✅ 必须等待数据加载完成再渲染
-        await renderHistoryList(elements.historyListOnPage);
-    }
-
-    function returnToSetup() {
-        elements.gameArea.classList.add('hidden');
-        elements.resultArea.classList.add('hidden');
-        elements.historyPage.classList.add('hidden');
-        elements.setupArea.classList.remove('hidden');
-        elements.startBtn.classList.remove('hidden');
-        elements.historyBtn.classList.remove('hidden');
-        elements.encouragement.textContent = '';
-        elements.review.innerHTML = '';
-    }
-
-    // =========================================================
-    // 游戏核心逻辑（保持不变）
-    // =========================================================
-
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-    function playCorrectSound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.3);
-    }
-
-    function playIncorrectSound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-        oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.5);
-    }
-
-    function playVictorySound() {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        const frequencies = [523.25, 659.25, 783.99, 1046.50];
-        frequencies.forEach((freq, index) => {
-            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
-        });
-        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 0.8);
-    }
-
-    function speak(text) {
-        if ('speechSynthesis' in window) {
-            if (speechSynthesis.speaking) {
-                speechSynthesis.cancel();
+        // 初始化题目
+        function initializeQuestions() {
+            gameState.questions = [];
+            for (let i = 0; i < gameState.questionCount; i++) {
+                gameState.questions.push(generateQuestion());
             }
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.8;
-            utterance.pitch = 1.2;
-            setTimeout(() => {
-                speechSynthesis.speak(utterance);
-            }, 50);
+            gameState.userAnswers = new Array(gameState.questionCount).fill(null);
         }
-    }
 
-    function readRules() {
-        const rules = [
-            "欢迎来到小百合数学达人养成记！",
-            "①每答对一题得10分；②答对题目有音效和动画鼓励；③游戏结束后可查看错题回顾；④时间到或完成所有题目后结束游戏；⑤需要在规定时间内完成100以内加减法题目！"
-        ];
-        let delay = 0;
-        rules.forEach((rule, index) => {
-            setTimeout(() => {
-                speak(rule);
-            }, delay);
-            delay += rule.length * 150;
-        });
-    }
+        // 显示当前题目
+        function displayCurrentQuestion() {
+            const current = gameState.questions[gameState.currentQuestion];
+            elements.question.textContent = `${current.num1} ${current.operation} ${current.num2} = ?`;
+            elements.progress.textContent = `第${gameState.currentQuestion + 1}题/共${gameState.questionCount}题`;
+            elements.answerInput.value = '';
+            elements.answerInput.focus();
+            elements.answerInput.select();
 
-    function generateQuestion() {
-        const operation = Math.random() > 0.5 ? '+' : '-';
-        let num1, num2, answer;
-        if (operation === '+') {
-            num1 = Math.floor(Math.random() * 100) + 1;
-            num2 = Math.floor(Math.random() * (100 - num1)) + 1;
-            answer = num1 + num2;
-        } else {
-            num1 = Math.floor(Math.random() * 100) + 1;
-            num2 = Math.floor(Math.random() * num1) + 1;
-            answer = num1 - num2;
+            // 语音播报题目
+            speak(`${current.num1} ${current.operation === '+' ? '加' : '减'} ${current.num2} 等于多少？`);
+
+            // 隐藏反馈信息
+            elements.feedback.textContent = '';
+            elements.feedback.className = 'feedback';
         }
-        return { num1, num2, operation, answer };
-    }
 
-    function initializeQuestions() {
-        gameState.questions = [];
-        for (let i = 0; i < gameState.questionCount; i++) {
-            gameState.questions.push(generateQuestion());
-        }
-        gameState.userAnswers = new Array(gameState.questionCount).fill(null);
-    }
+        function startGame() {
+            gameState.timeLimit = parseInt(elements.timeLimit.value) || 30;
+            gameState.questionCount = parseInt(elements.questionCount.value) || 10;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.timeLeft = gameState.timeLimit;
+            gameState.isGameActive = true;
 
-    function displayCurrentQuestion() {
-        const current = gameState.questions[gameState.currentQuestion];
-        elements.question.textContent = `${current.num1} ${current.operation} ${current.num2} = ?`;
-        elements.progress.textContent = `第${gameState.currentQuestion + 1}题/共${gameState.questionCount}题`;
-        elements.answerInput.value = '';
-        elements.answerInput.focus();
-        elements.answerInput.select();
-        speak(`${current.num1} ${current.operation === '+' ? '加' : '减'} ${current.num2} 等于多少？`);
-        elements.feedback.textContent = '';
-        elements.feedback.className = 'feedback';
-    }
+            initializeQuestions();
 
-    function startGame() {
-        gameState.timeLimit = parseInt(elements.timeLimit.value) || 30;
-        gameState.questionCount = parseInt(elements.questionCount.value) || 10;
-        gameState.currentQuestion = 0;
-        gameState.score = 0;
-        gameState.timeLeft = gameState.timeLimit;
-        gameState.isGameActive = true;
-        initializeQuestions();
-        elements.timer.textContent = gameState.timeLeft;
-        elements.score.textContent = `得分: ${gameState.score}`;
-        elements.setupArea.classList.add('hidden');
-        elements.gameArea.classList.remove('hidden');
-        elements.resultArea.classList.add('hidden');
-        elements.historyPage.classList.add('hidden');
-        if (gameState.timer) clearInterval(gameState.timer);
-        gameState.timer = setInterval(updateTimer, 1000);
-        displayCurrentQuestion();
-        elements.startBtn.classList.add('hidden');
-        elements.submitBtn.classList.remove('hidden');
-    }
-
-    function updateTimer() {
-        gameState.timeLeft--;
-        elements.timer.textContent = gameState.timeLeft;
-        if (gameState.timeLeft <= 0) endGame();
-    }
-
-    function submitAnswer() {
-        if (!gameState.isGameActive) return;
-        const userAnswer = parseInt(elements.answerInput.value);
-        const current = gameState.questions[gameState.currentQuestion];
-        gameState.userAnswers[gameState.currentQuestion] = userAnswer;
-        if (userAnswer === current.answer) {
-            gameState.score += 10;
+            elements.timer.textContent = gameState.timeLeft;
             elements.score.textContent = `得分: ${gameState.score}`;
-            elements.feedback.textContent = '答对了! 🎉';
-            elements.feedback.className = 'feedback correct';
-            playCorrectSound();
-            speak('答对了！真棒！');
-            showParticles();
-        } else {
-            elements.feedback.textContent = '答错了! 😢';
-            elements.feedback.className = 'feedback incorrect';
-            playIncorrectSound();
-            speak(`答错了，正确答案是 ${current.answer}，继续努力！`);
-        }
-        elements.answerInput.disabled = true;
-        elements.submitBtn.classList.add('hidden');
-        elements.nextBtn.classList.remove('hidden');
-    }
 
-    function nextQuestion() {
-        gameState.currentQuestion++;
-        if (gameState.currentQuestion >= gameState.questionCount) {
-            endGame();
-        } else {
-            elements.answerInput.disabled = false;
-            elements.nextBtn.classList.add('hidden');
-            elements.submitBtn.classList.remove('hidden');
+            // 隐藏设置区域 (包括历史按钮)
+            elements.setupArea.classList.add('hidden');
+
+            elements.gameArea.classList.remove('hidden');
+            elements.resultArea.classList.add('hidden');
+            elements.historyPage.classList.add('hidden'); // 确保历史页也隐藏
+
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+            gameState.timer = setInterval(updateTimer, 1000);
+
             displayCurrentQuestion();
+
+            elements.startBtn.classList.add('hidden');
+            elements.submitBtn.classList.remove('hidden');
         }
-    }
 
-    async function endGame() {
-        gameState.isGameActive = false;
-        if (gameState.timer) clearInterval(gameState.timer);
-        await saveChallengeRecord();
-        elements.gameArea.classList.add('hidden');
-        showResults();
-    }
+        function updateTimer() {
+            gameState.timeLeft--;
+            elements.timer.textContent = gameState.timeLeft;
 
-    function showResults() {
-        elements.resultArea.classList.remove('hidden');
-        let encouragementText = '', encouragementClass = '';
-        if (gameState.score === gameState.questionCount * 10) {
-            encouragementText = '太棒了! 你是数学小天才! 🎉';
-            encouragementClass = 'excellent';
-            speak('太棒了! 你是数学小天才!');
-            playVictorySound();
-            createConfetti();
-        } else if (gameState.score >= gameState.questionCount * 8) {
-            encouragementText = '不错哦! 差一点就满分了! 😊';
-            encouragementClass = 'good';
-            speak('不错哦! 差一点就满分了！');
-        } else if (gameState.score >= gameState.questionCount * 6) {
-            encouragementText = '及格了! 宝贝继续加油! 💪';
-            encouragementClass = 'average';
-            speak('及格了! 宝贝继续加油! ');
-        } else {
-            encouragementText = '别灰心! 你会更棒的! 🌈';
-            encouragementClass = 'needpractice';
-            speak('别灰心! 你会更棒的!！');
+            if (gameState.timeLeft <= 0) {
+                endGame();
+            }
         }
-        elements.encouragement.textContent = encouragementText;
-        elements.encouragement.className = `encouragement ${encouragementClass}`;
-        showReview();
-    }
 
-    function showReview() {
-        let reviewHTML = '<div class="review-detail"><h3>本次挑战回顾</h3>';
-        for (let i = 0; i < gameState.questionCount; i++) {
-            const q = gameState.questions[i];
-            const userAnswer = gameState.userAnswers[i];
-            const correct = userAnswer === q.answer;
-            const unanswered = userAnswer === null;
-            let className = '';
-            let statusText = '';
-            if (unanswered) {
-                className = 'unanswered';
-                statusText = `未作答，正确答案: ${q.answer}`;
-            } else if (correct) {
-                className = 'correct';
-                statusText = '✓ 正确!';
+        function submitAnswer() {
+            if (!gameState.isGameActive) return; // 防止重复提交或游戏结束提交
+
+            const userAnswer = parseInt(elements.answerInput.value);
+            const current = gameState.questions[gameState.currentQuestion];
+
+            gameState.userAnswers[gameState.currentQuestion] = userAnswer;
+
+            if (userAnswer === current.answer) {
+                gameState.score += 10;
+                elements.score.textContent = `得分: ${gameState.score}`;
+                elements.feedback.textContent = '答对了! 🎉';
+                elements.feedback.className = 'feedback correct';
+                playCorrectSound();
+                speak('答对了！真棒！');
+                showParticles();
             } else {
-                className = 'incorrect';
-                statusText = `✗ 你的答案: ${userAnswer}, 正确答案: ${q.answer}`;
+                elements.feedback.textContent = '答错了! 😢';
+                elements.feedback.className = 'feedback incorrect';
+                playIncorrectSound();
+                speak(`答错了，正确答案是 ${current.answer}，继续努力！`);
             }
-            reviewHTML += `
-                <div class="review-item ${className}">
-                    <div class="review-question">Q${i + 1}: ${q.num1} ${q.operation} ${q.num2} = ?</div>
-                    <div class="review-answer">${statusText}</div>
-                </div>
-            `;
+
+            elements.answerInput.disabled = true;
+            elements.submitBtn.classList.add('hidden');
+            elements.nextBtn.classList.remove('hidden');
         }
-        reviewHTML += '</div>';
-        elements.review.innerHTML = reviewHTML;
-    }
 
-    function createConfetti() {
-        elements.particles.innerHTML = '';
-        for (let i = 0; i < 100; i++) {
-            setTimeout(() => {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = '-10px';
-                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                particle.style.width = `${Math.random() * 10 + 5}px`;
-                particle.style.height = particle.style.width;
-                elements.particles.appendChild(particle);
-                setTimeout(() => { particle.remove(); }, 2000);
-            }, i * 20);
-        }
-    }
+        function nextQuestion() {
+            gameState.currentQuestion++;
 
-    function showParticles() {
-        for (let i = 0; i < 20; i++) {
-            setTimeout(() => {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = '-10px';
-                particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                particle.style.width = `${Math.random() * 8 + 4}px`;
-                particle.style.height = particle.style.width;
-                elements.particles.appendChild(particle);
-                setTimeout(() => { particle.remove(); }, 1000);
-            }, i * 50);
-        }
-    }
-
-    // 事件监听器
-    elements.startBtn.addEventListener('click', startGame);
-    elements.submitBtn.addEventListener('click', submitAnswer);
-    elements.nextBtn.addEventListener('click', nextQuestion);
-    elements.readRulesBtn.addEventListener('click', readRules);
-    elements.historyBtn.addEventListener('click', showHistoryPage);
-
-    elements.answerInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            if (!elements.submitBtn.classList.contains('hidden')) {
-                submitAnswer();
-            } else if (!elements.nextBtn.classList.contains('hidden')) {
-                nextQuestion();
+            if (gameState.currentQuestion >= gameState.questionCount) {
+                endGame();
+            } else {
+                elements.answerInput.disabled = false;
+                elements.nextBtn.classList.add('hidden');
+                elements.submitBtn.classList.remove('hidden');
+                displayCurrentQuestion();
             }
         }
-    });
 
-    window.onload = function() {
-        elements.gameArea.classList.add('hidden');
-        elements.resultArea.classList.add('hidden');
-        elements.historyPage.classList.add('hidden');
-        elements.setupArea.classList.remove('hidden');
-        elements.startBtn.classList.remove('hidden');
-        elements.historyBtn.classList.remove('hidden');
-    };
-</script>
+        function endGame() {
+            gameState.isGameActive = false;
+            if (gameState.timer) {
+                clearInterval(gameState.timer);
+            }
+
+            // 保存本次挑战记录
+            saveChallengeRecord();
+
+            elements.gameArea.classList.add('hidden');
+            showResults();
+        }
+
+        function showResults() {
+            elements.resultArea.classList.remove('hidden');
+
+            // 激励信息逻辑保持不变
+            let encouragementText = '';
+            let encouragementClass = '';
+
+            if (gameState.score === gameState.questionCount * 10) {
+                encouragementText = '太棒了! 你是数学小天才! 🎉';
+                encouragementClass = 'excellent';
+                speak('太棒了! 你是数学小天才!');
+                playVictorySound();
+                createConfetti();
+            } else if (gameState.score >= gameState.questionCount * 8) {
+                encouragementText = '不错哦! 差一点就满分了! 😊';
+                encouragementClass = 'good';
+                speak('不错哦! 差一点就满分了！');
+            } else if (gameState.score >= gameState.questionCount * 6) {
+                encouragementText = '及格了! 宝贝继续加油! 💪';
+                encouragementClass = 'average';
+                speak('及格了! 宝贝继续加油! ');
+            } else {
+                encouragementText = '别灰心! 你会更棒的! 🌈';
+                encouragementClass = 'needpractice';
+                speak('别灰心! 你会更棒的!！');
+            }
+
+            elements.encouragement.textContent = encouragementText;
+            elements.encouragement.className = `encouragement ${encouragementClass}`;
+
+            // 显示本次挑战的错题回顾
+            showReview();
+        }
+
+        function showReview() {
+            // 此处的 showReview 仍然用于显示当前挑战的结果
+            // 使用新的 review-detail 容器包裹错题
+            let reviewHTML = '<div class="review-detail"><h3>本次挑战回顾</h3>';
+
+            for (let i = 0; i < gameState.questionCount; i++) {
+                const q = gameState.questions[i];
+                const userAnswer = gameState.userAnswers[i];
+                const correct = userAnswer === q.answer;
+                const unanswered = userAnswer === null;
+
+                let className = '';
+                let statusText = '';
+
+                if (unanswered) {
+                    className = 'unanswered';
+                    statusText = `未作答，正确答案: ${q.answer}`;
+                } else if (correct) {
+                    className = 'correct';
+                    statusText = '✓ 正确!';
+                } else {
+                    className = 'incorrect';
+                    statusText = `✗ 你的答案: ${userAnswer}, 正确答案: ${q.answer}`;
+                }
+
+                // 使用 review-item, review-question, review-answer 结构
+                reviewHTML += `
+                    <div class="review-item ${className}">
+                        <div class="review-question">Q${i + 1}: ${q.num1} ${q.operation} ${q.num2} = ?</div>
+                        <div class="review-answer">${statusText}</div>
+                    </div>
+                `;
+            }
+            reviewHTML += '</div>'; // 关闭 review-detail 容器
+
+            elements.review.innerHTML = reviewHTML;
+        }
+
+        // 庆祝动画函数
+        function createConfetti() {
+            elements.particles.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = '-10px';
+                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                    particle.style.width = `${Math.random() * 10 + 5}px`;
+                    particle.style.height = particle.style.width;
+                    elements.particles.appendChild(particle);
+                    setTimeout(() => { particle.remove(); }, 2000);
+                }, i * 20);
+            }
+        }
+
+        function showParticles() {
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = `${Math.random() * 100}%`;
+                    particle.style.top = '-10px';
+                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                    particle.style.width = `${Math.random() * 8 + 4}px`;
+                    particle.style.height = particle.style.width;
+                    elements.particles.appendChild(particle);
+                    setTimeout(() => { particle.remove(); }, 1000);
+                }, i * 50);
+            }
+        }
+
+        // 事件监听器
+        elements.startBtn.addEventListener('click', startGame);
+        elements.submitBtn.addEventListener('click', submitAnswer);
+        elements.nextBtn.addEventListener('click', nextQuestion);
+        elements.readRulesBtn.addEventListener('click', readRules);
+        // 新增历史按钮监听器
+        elements.historyBtn.addEventListener('click', showHistoryPage);
+
+        // 键盘 Enter 监听器
+        elements.answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (!elements.submitBtn.classList.contains('hidden')) {
+                    submitAnswer();
+                } else if (!elements.nextBtn.classList.contains('hidden')) {
+                    nextQuestion();
+                }
+            }
+        });
+
+        // 页面加载完成时初始化
+        window.onload = function() {
+            // 确保游戏区、结果区和历史区隐藏
+            elements.gameArea.classList.add('hidden');
+            elements.resultArea.classList.add('hidden');
+            elements.historyPage.classList.add('hidden');
+
+            // 确保设置区可见
+            elements.setupArea.classList.remove('hidden');
+
+            // 确保开始按钮和历史按钮可见
+            elements.startBtn.classList.remove('hidden');
+            elements.historyBtn.classList.remove('hidden');
+
+            // 首次加载时不需要立即渲染历史记录，除非用户主动访问历史页面
+            // 首次点击历史按钮时会触发渲染
+        };
+    </script>
 </body>
 </html>
