@@ -158,7 +158,6 @@
         .btn-start {
             background: #66cc66;
             color: white;
-            /* padding 和 font-size 与 btn-history 保持一致 */
             padding: 15px 30px;
             font-size: 1.3rem;
             margin-top: 25px;
@@ -180,14 +179,13 @@
             padding: 10px 20px;
             font-size: 1rem;
         }
-        /* 新增历史得分按钮样式 */
+
         .btn-history {
              background: #9966cc;
              color: white;
-             /* padding 和 font-size 与 btn-start 保持一致 */
              padding: 15px 30px;
              font-size: 1.3rem;
-             margin-top: 15px; /* 稍微减小顶部边距以匹配视觉 */
+             margin-top: 15px;
         }
 
         .btn:hover {
@@ -220,7 +218,7 @@
             animation: shake 0.5s ease;
         }
 
-        /* 历史记录样式 (现在用于历史页面) */
+        /* 历史记录样式 */
         .history-section {
             margin-top: 20px;
             padding: 20px;
@@ -230,14 +228,14 @@
         }
         .history-section h2 {
             color: #0066cc;
-            font-size: 1.7rem; /* 增大标题 */
+            font-size: 1.7rem;
             margin-bottom: 15px;
             text-align: center;
         }
         .history-list {
             list-style: none;
             padding: 0;
-            max-height: 60vh; /* 给列表一个最大高度，避免页面过长 */
+            max-height: 60vh;
             overflow-y: auto;
         }
         .history-item {
@@ -263,55 +261,49 @@
         }
 
         /* ====== 核心修改部分：错题回顾详情样式 ====== */
-        /* 整体回顾区域 */
         .review-detail {
             margin-top: 20px;
-            padding: 20px; /* 增加内边距 */
+            padding: 20px;
             border-top: 2px dashed #ccc;
-            background: #f0f8ff; /* 添加背景色 */
-            border-radius: 15px; /* 圆角 */
-            text-align: left; /* 确保内部内容左对齐 */
-        }
-
-        /* 单个错题项 */
-        .review-detail .review-item {
-            margin: 15px 0; /* 上下留白 */
-            padding: 12px; /* 内部填充 */
-            font-size: 1.2rem; /* 字体大小 */
+            background: #f0f8ff;
+            border-radius: 15px;
             text-align: left;
-            background-color: #ffffff; /* 白色背景 */
-            border-radius: 8px; /* 圆角 */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* 轻微阴影 */
-            border: 1px solid #e0e0e0; /* 浅色边框 */
         }
 
-        /* 问题文本 */
+        .review-detail .review-item {
+            margin: 15px 0;
+            padding: 12px;
+            font-size: 1.2rem;
+            text-align: left;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+
         .review-detail .review-question {
-            color: #333; /* 深色文字 */
-            font-weight: bold; /* 加粗 */
-            margin-bottom: 5px; /* 与答案间距 */
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
 
-        /* 答案文本 */
         .review-detail .review-answer {
-            color: #666; /* 稍浅文字 */
+            color: #666;
         }
 
-        /* 不同状态错题的背景色 */
         .review-detail .review-item.correct {
-            background-color: #e6ffe6; /* 正确：浅绿色 */
+            background-color: #e6ffe6;
             border-color: #b3e6b3;
         }
         .review-detail .review-item.incorrect {
-            background-color: #ffe6e6; /* 错误：浅红色 */
+            background-color: #ffe6e6;
             border-color: #ffb3b3;
         }
         .review-detail .review-item.unanswered {
-            background-color: #fff3e0; /* 未答：浅橙色 */
+            background-color: #fff3e0;
             border-color: #ffcc80;
         }
         /* ====== /核心修改部分 ====== */
-
 
         /* 隐藏类 */
         .hidden {
@@ -326,57 +318,54 @@
             }
 
             .settings {
-                gap: 30px; /* 增加间隔 */
+                gap: 30px;
             }
 
             .setting-item {
-                min-width: 220px; /* 增加最小宽度 */
+                min-width: 220px;
             }
 
             .rules {
-                font-size: 1.3rem; /* 增大字体 */
+                font-size: 1.3rem;
             }
 
             .rules li {
-                white-space: nowrap; /* 防止换行 */
+                white-space: nowrap;
             }
 
             .question {
-                font-size: 4rem; /* 更大字体 */
+                font-size: 4rem;
             }
 
             .answer-input {
-                width: 300px; /* 增加宽度 */
-                font-size: 2.5rem; /* 增大字体 */
+                width: 300px;
+                font-size: 2.5rem;
             }
 
             .btn {
-                padding: 18px 35px; /* 增大按钮 */
+                padding: 18px 35px;
                 font-size: 1.4rem;
             }
 
             .btn-start {
-                /* padding 和 font-size 与 btn-history 保持一致 */
                 padding: 18px 35px;
                 font-size: 1.4rem;
             }
             .btn-history {
-                 /* padding 和 font-size 与 btn-start 保持一致 */
                  padding: 18px 35px;
                  font-size: 1.4rem;
             }
 
             .history-item {
-                font-size: 1.3rem; /* 增大字体 */
+                font-size: 1.3rem;
             }
 
-            /* Pad下也增大错题回顾字体 */
             .review-detail .review-item {
-                font-size: 1.3rem; /* Pad 下稍微大一点 */
+                font-size: 1.3rem;
             }
         }
 
-        /* 移动设备适配：保证在小屏上设置项仍能垂直堆叠 */
+        /* 移动设备适配 */
         @media (max-width: 767px) {
             .settings {
                 flex-direction: column;
@@ -389,7 +378,7 @@
                 max-width: 100%;
             }
             .rules li {
-                white-space: normal; /* 小屏允许换行 */
+                white-space: normal;
             }
         }
     </style>
@@ -416,11 +405,10 @@
                 <ul>
                     <li>①每答对一题得10分；②答对题目有音效和动画鼓励；③游戏结束后可查看错题回顾；</li>
                     <li>④时间到或完成所有题目后结束游戏；⑤需要在规定时间内完成100以内加减法题目。</li>
-
+                </ul>
             </div>
 
             <button id="startBtn" class="btn btn-start">开始挑战</button>
-            <!-- 新增的历史得分按钮 -->
             <button id="historyBtn" class="btn btn-history">历史得分</button>
         </div>
 
@@ -443,37 +431,40 @@
             <button class="btn btn-start" onclick="returnToSetup()" style="margin-top: 20px;">返回设置页</button>
         </div>
 
-        <!-- 新增的历史得分页面 -->
+        <!-- 历史得分页面 -->
         <div id="historyPage" class="hidden">
              <h1>🏆 历史挑战记录</h1>
              <div class="history-section">
                  <ul class="history-list" id="historyListOnPage">
-                     <!-- 历史记录将通过JS动态填充 -->
+                     <!-- 动态填充 -->
                  </ul>
              </div>
              <button class="btn btn-history" onclick="returnToSetup()" style="margin-top: 20px;">返回首页</button>
         </div>
-
     </div>
-<script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"></script>
+
+    <!-- LeanCloud SDK -->
+    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"></script>
 
     <script>
-        // ⚠️ 【重要】请将这两个占位符替换成您自己的真实 App ID 和 App Key
+        // ⚠️ 替换成你的 App ID 和 App Key
         const LEANCLOUD_APP_ID = 'gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz';
         const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
-        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
+        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord';
 
+        // ✅ 修复：移除 serverURL 或确保正确配置
         if (typeof AV !== 'undefined') {
-        AV.init({
-        appId: LEANCLOUD_APP_ID,
-        appKey: LEANCLOUD_APP_KEY,
-        serverURL: 'https://gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz.apiclouds.com'
-    });
-    console.log("LeanCloud SDK 初始化成功!");
-} else {
-    console.error("LeanCloud SDK 加载失败!");
-}
+            AV.init({
+                appId: LEANCLOUD_APP_ID,
+                appKey: LEANCLOUD_APP_KEY
+                // 注意：不要设置 serverURL，除非你有自己的云引擎
+            });
+            console.log("✅ LeanCloud SDK 初始化成功！");
+        } else {
+            console.error("❌ LeanCloud SDK 加载失败！");
+        }
     </script>
+
     <div class="particles" id="particles"></div>
 
     <script>
@@ -497,11 +488,9 @@
             setupArea: document.getElementById('setupArea'),
             gameArea: document.getElementById('gameArea'),
             resultArea: document.getElementById('resultArea'),
-            // 新增历史页面DOM元素
             historyPage: document.getElementById('historyPage'),
             historyListOnPage: document.getElementById('historyListOnPage'),
             historyBtn: document.getElementById('historyBtn'),
-
             timer: document.getElementById('timer'),
             score: document.getElementById('score'),
             progress: document.getElementById('progress'),
@@ -514,54 +503,33 @@
             encouragement: document.getElementById('encouragement'),
             review: document.getElementById('review'),
             particles: document.getElementById('particles'),
-            readRulesBtn: document.getElementById('readRulesBtn'),
-            settings: document.querySelector('.settings'),
-            rules: document.querySelector('.rules')
-            // 注意：原 historyList 元素被移除了，因为我们现在直接操作 historyListOnPage
+            readRulesBtn: document.getElementById('readRulesBtn')
         };
 
         // =========================================================
-        // 🎯 历史记录管理功能 (修改以支持新页面)
+        // 📂 历史记录管理功能
         // =========================================================
 
-        // 原始的 STORAGE_KEY 不再需要，因为我们使用 LeanCloud 存储
-
-        /**
-         * 加载历史记录 (LeanCloud版本 - 异步)
-         * @returns {Promise<Array>} 历史记录数组
-         */
         async function loadHistory() {
-            if (typeof AV === 'undefined') {
-                console.error("LeanCloud 未初始化或加载失败");
-                return []; 
-            }
-
+            if (typeof AV === 'undefined') return [];
             const query = new AV.Query(LEANCLOUD_CLASS_NAME);
-            query.descending('createdAt'); // 按创建时间倒序排列
-            query.limit(20); // 仅查询最新的 20 条记录
-
+            query.descending('createdAt');
+            query.limit(20);
             try {
-                // 等待查询结果
                 const results = await query.find();
-                // 将 LeanCloud 对象转换为普通的 JavaScript 对象数组
-                const history = results.map(item => item.toJSON());
-                return history;
+                return results.map(item => item.toJSON());
             } catch (error) {
-                console.error("从 LeanCloud 加载历史记录失败:", error);
+                console.error("加载历史记录失败:", error);
                 return [];
             }
         }
 
-      /**
-         * 保存单次挑战记录 (LeanCloud版本 - 异步)
-         */
         async function saveChallengeRecord() {
             if (typeof AV === 'undefined') {
-                console.error("LeanCloud 未初始化，无法保存记录。");
+                console.error("LeanCloud 未初始化");
                 return;
             }
-            
-            // 记录本次挑战的数据（结构与之前保持一致，便于查阅）
+
             const recordData = {
                 date: new Date().toLocaleString('zh-CN', {
                     year: 'numeric',
@@ -573,7 +541,6 @@
                 score: gameState.score,
                 totalQuestions: gameState.questionCount,
                 timeSpent: gameState.timeLimit - gameState.timeLeft,
-                // 仅存储错题回顾所需的核心数据
                 results: gameState.questions.map((q, index) => ({
                     q: `${q.num1} ${q.operation} ${q.num2} = ?`,
                     correctAnswer: q.answer,
@@ -581,28 +548,20 @@
                 }))
             };
 
-            // 1. 创建一个新的 LeanCloud 记录对象
             const Record = AV.Object.extend(LEANCLOUD_CLASS_NAME);
             const record = new Record();
-            record.set(recordData); // 将数据设置到对象中
+            record.set(recordData);
 
             try {
-                // 2. 提交到 LeanCloud，await 等待保存完成
-                await record.save(); 
-                console.log('挑战记录保存成功！已同步至云端。');
+                await record.save();
+                console.log('✅ 挑战记录已成功保存至云端');
             } catch (error) {
-                console.error('保存挑战记录到 LeanCloud 失败:', error);
+                console.error('❌ 保存记录失败:', error);
             }
-            
-            // 注意：因为是异步保存，这里不再需要手动调用 renderHistoryList，它会在 showHistoryPage 时被调用
         }
 
-        /**
-         * 渲染历史记录列表 (通用函数)
-         * @param {HTMLElement} targetElement - 要渲染到的目标<ul>元素
-         */
-            async function renderHistoryList(targetElement) { // 增加 async 关键字
-            const history = await loadHistory(); // 增加 await 关键字
+        async function renderHistoryList(targetElement) {
+            const history = await loadHistory();
             targetElement.innerHTML = '';
 
             if (history.length === 0) {
@@ -616,7 +575,7 @@
 
                 const item = document.createElement('li');
                 item.className = 'history-item';
-                item.dataset.index = index; // 存储索引用于查找详情
+                item.dataset.index = index;
 
                 item.innerHTML = `
                     <span>📅 ${record.date}</span>
@@ -624,35 +583,26 @@
                     <span class="history-score">得分: ${record.score}</span>
                 `;
 
-                // 添加点击事件，显示错题详情
                 item.addEventListener('click', () => showHistoryDetail(record));
                 targetElement.appendChild(item);
             });
         }
 
-        /**
-         * 显示某次历史挑战的错题回顾详情
-         * @param {Object} record - 单次历史记录对象
-         */
         function showHistoryDetail(record) {
-            // 隐藏所有可能显示的区域
             elements.setupArea.classList.add('hidden');
             elements.gameArea.classList.add('hidden');
-            elements.historyPage.classList.add('hidden'); // 隐藏历史页面
-            elements.resultArea.classList.remove('hidden'); // 显示结果区域用于展示详情
+            elements.historyPage.classList.add('hidden');
+            elements.resultArea.classList.remove('hidden');
 
             elements.encouragement.textContent = `回顾: ${record.date} (${record.score}分)`;
-            elements.encouragement.className = `encouragement good`; // 使用 good 类作为默认回顾样式
+            elements.encouragement.className = `encouragement good`;
 
-            // 使用新的 review-detail 容器包裹错题
             let reviewHTML = '<div class="review-detail"><h3>错题回顾详情</h3>';
 
             record.results.forEach((r, i) => {
                 const correct = r.userAnswer === r.correctAnswer;
                 const unanswered = r.userAnswer === null;
-
-                let className = '';
-                let statusText = '';
+                let className = '', statusText = '';
 
                 if (unanswered) {
                     className = 'unanswered';
@@ -665,7 +615,6 @@
                     statusText = `✗ 你的答案: ${r.userAnswer}, 正确答案: ${r.correctAnswer}`;
                 }
 
-                // 使用 review-item, review-question, review-answer 结构
                 reviewHTML += `
                     <div class="review-item ${className}">
                         <div class="review-question">Q${i + 1}: ${r.q}</div>
@@ -673,174 +622,109 @@
                     </div>
                 `;
             });
-            reviewHTML += '</div>'; // 关闭 review-detail 容器
-
+            reviewHTML += '</div>';
             elements.review.innerHTML = reviewHTML;
         }
 
-        /**
-         * 显示历史得分页面
-         */
         async function showHistoryPage() {
-             // 隐藏其他所有区域
-             elements.setupArea.classList.add('hidden');
-             elements.gameArea.classList.add('hidden');
-             elements.resultArea.classList.add('hidden');
-
-             // 显示历史页面
-             elements.historyPage.classList.remove('hidden');
-
-             // 渲染历史记录到新页面
-             await renderHistoryList(elements.historyListOnPage);
+            elements.setupArea.classList.add('hidden');
+            elements.gameArea.classList.add('hidden');
+            elements.resultArea.classList.add('hidden');
+            elements.historyPage.classList.remove('hidden');
+            await renderHistoryList(elements.historyListOnPage);
         }
 
-        /**
-         * 返回设置页 (首页)，并刷新历史记录
-         */
         function returnToSetup() {
-            // 隐藏所有其他区域
             elements.gameArea.classList.add('hidden');
             elements.resultArea.classList.add('hidden');
             elements.historyPage.classList.add('hidden');
-
-            // 显示首页区域
             elements.setupArea.classList.remove('hidden');
-
-            // 确保开始按钮可见
             elements.startBtn.classList.remove('hidden');
-            // 确保历史按钮可见
             elements.historyBtn.classList.remove('hidden');
-
-            // 清除结果页的临时回顾内容 (如果有的话)
             elements.encouragement.textContent = '';
             elements.review.innerHTML = '';
-
-            // 如果需要，在返回首页时也刷新首页可能存在的历史列表
-            // renderHistoryList(); // 假设有一个 renderHistoryList() 是针对首页的旧版本
         }
 
-
         // =========================================================
-        // 游戏核心逻辑 (修复语音功能)
+        // 🎮 游戏核心逻辑
         // =========================================================
 
-        // 音效系统
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
         function playCorrectSound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
-
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(800, audioContext.currentTime);
+            osc.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.3);
         }
 
         function playIncorrectSound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.1);
-
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            osc.frequency.setValueAtTime(400, audioContext.currentTime);
+            osc.frequency.setValueAtTime(200, audioContext.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.5);
         }
 
         function playVictorySound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            const frequencies = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C
-
-            frequencies.forEach((freq, index) => {
-                oscillator.frequency.setValueAtTime(freq, audioContext.currentTime + index * 0.1);
-            });
-
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
-
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.8);
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.connect(gain); gain.connect(audioContext.destination);
+            const freqs = [523.25, 659.25, 783.99, 1046.50];
+            freqs.forEach((f, i) => osc.frequency.setValueAtTime(f, audioContext.currentTime + i * 0.1));
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+            osc.start(audioContext.currentTime);
+            osc.stop(audioContext.currentTime + 0.8);
         }
 
-        // 修复语音播报功能
         function speak(text) {
             if ('speechSynthesis' in window) {
-                // 等待语音引擎准备就绪
-                if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel(); // 取消之前的语音
-                }
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'zh-CN';
-                utterance.rate = 0.8; // 语速稍慢，便于理解
-                utterance.pitch = 1.2; // 音调稍高，更亲切
-
-                // 语音播报前的准备
-                setTimeout(() => {
-                    speechSynthesis.speak(utterance);
-                }, 50); // 延迟50ms确保语音引擎已准备
+                if (speechSynthesis.speaking) speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-CN';
+                u.rate = 0.8;
+                u.pitch = 1.2;
+                setTimeout(() => speechSynthesis.speak(u), 50);
             }
         }
 
-        // 读取游戏规则
         function readRules() {
             const rules = [
                 "欢迎来到小百合数学达人养成记！",
                 "①每答对一题得10分；②答对题目有音效和动画鼓励；③游戏结束后可查看错题回顾；④时间到或完成所有题目后结束游戏；⑤需要在规定时间内完成100以内加减法题目！"
             ];
-
             let delay = 0;
-            rules.forEach((rule, index) => {
-                setTimeout(() => {
-                    speak(rule);
-                }, delay);
-                delay += rule.length * 150; // 根据文本长度调整延迟
+            rules.forEach(rule => {
+                setTimeout(() => speak(rule), delay);
+                delay += rule.length * 150;
             });
         }
 
-        // 生成随机题目
         function generateQuestion() {
-            const operation = Math.random() > 0.5 ? '+' : '-';
-            let num1, num2, answer;
-
-            if (operation === '+') {
+            const op = Math.random() > 0.5 ? '+' : '-';
+            let num1, num2, ans;
+            if (op === '+') {
                 num1 = Math.floor(Math.random() * 100) + 1;
                 num2 = Math.floor(Math.random() * (100 - num1)) + 1;
-                answer = num1 + num2;
+                ans = num1 + num2;
             } else {
                 num1 = Math.floor(Math.random() * 100) + 1;
                 num2 = Math.floor(Math.random() * num1) + 1;
-                answer = num1 - num2;
+                ans = num1 - num2;
             }
-
-            return {
-                num1,
-                num2,
-                operation,
-                answer
-            };
+            return { num1, num2, operation: op, answer: ans };
         }
 
-        // 初始化题目
         function initializeQuestions() {
             gameState.questions = [];
             for (let i = 0; i < gameState.questionCount; i++) {
@@ -849,21 +733,16 @@
             gameState.userAnswers = new Array(gameState.questionCount).fill(null);
         }
 
-        // 显示当前题目
         function displayCurrentQuestion() {
-            const current = gameState.questions[gameState.currentQuestion];
-            elements.question.textContent = `${current.num1} ${current.operation} ${current.num2} = ?`;
+            const q = gameState.questions[gameState.currentQuestion];
+            elements.question.textContent = `${q.num1} ${q.operation} ${q.num2} = ?`;
             elements.progress.textContent = `第${gameState.currentQuestion + 1}题/共${gameState.questionCount}题`;
             elements.answerInput.value = '';
             elements.answerInput.focus();
             elements.answerInput.select();
-
-            // 语音播报题目
-            speak(`${current.num1} ${current.operation === '+' ? '加' : '减'} ${current.num2} 等于多少？`);
-
-            // 隐藏反馈信息
             elements.feedback.textContent = '';
             elements.feedback.className = 'feedback';
+            speak(`${q.num1} ${q.operation === '+' ? '加' : '减'} ${q.num2} 等于多少？`);
         }
 
         function startGame() {
@@ -879,20 +758,15 @@
             elements.timer.textContent = gameState.timeLeft;
             elements.score.textContent = `得分: ${gameState.score}`;
 
-            // 隐藏设置区域 (包括历史按钮)
             elements.setupArea.classList.add('hidden');
-
             elements.gameArea.classList.remove('hidden');
             elements.resultArea.classList.add('hidden');
-            elements.historyPage.classList.add('hidden'); // 确保历史页也隐藏
+            elements.historyPage.classList.add('hidden');
 
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
+            if (gameState.timer) clearInterval(gameState.timer);
             gameState.timer = setInterval(updateTimer, 1000);
 
             displayCurrentQuestion();
-
             elements.startBtn.classList.add('hidden');
             elements.submitBtn.classList.remove('hidden');
         }
@@ -900,18 +774,13 @@
         function updateTimer() {
             gameState.timeLeft--;
             elements.timer.textContent = gameState.timeLeft;
-
-            if (gameState.timeLeft <= 0) {
-                endGame();
-            }
+            if (gameState.timeLeft <= 0) endGame();
         }
 
         function submitAnswer() {
-            if (!gameState.isGameActive) return; // 防止重复提交或游戏结束提交
-
-            const userAnswer = parseInt(elements.answerInput.value);
+            if (!gameState.isGameActive) return;
+            const userAnswer = parseInt(elements.answerInput.value) || null;
             const current = gameState.questions[gameState.currentQuestion];
-
             gameState.userAnswers[gameState.currentQuestion] = userAnswer;
 
             if (userAnswer === current.answer) {
@@ -936,7 +805,6 @@
 
         function nextQuestion() {
             gameState.currentQuestion++;
-
             if (gameState.currentQuestion >= gameState.questionCount) {
                 endGame();
             } else {
@@ -949,103 +817,80 @@
 
         function endGame() {
             gameState.isGameActive = false;
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
-
-            // 保存本次挑战记录
-            saveChallengeRecord();
-
+            if (gameState.timer) clearInterval(gameState.timer);
+            saveChallengeRecord(); // 保存记录
             elements.gameArea.classList.add('hidden');
             showResults();
         }
 
         function showResults() {
             elements.resultArea.classList.remove('hidden');
-
-            // 激励信息逻辑保持不变
-            let encouragementText = '';
-            let encouragementClass = '';
-
-            if (gameState.score === gameState.questionCount * 10) {
-                encouragementText = '太棒了! 你是数学小天才! 🎉';
-                encouragementClass = 'excellent';
+            let msg = '', cls = '';
+            const full = gameState.questionCount * 10;
+            if (gameState.score === full) {
+                msg = '太棒了! 你是数学小天才! 🎉';
+                cls = 'excellent';
                 speak('太棒了! 你是数学小天才!');
                 playVictorySound();
                 createConfetti();
-            } else if (gameState.score >= gameState.questionCount * 8) {
-                encouragementText = '不错哦! 差一点就满分了! 😊';
-                encouragementClass = 'good';
+            } else if (gameState.score >= full * 0.8) {
+                msg = '不错哦! 差一点就满分了! 😊';
+                cls = 'good';
                 speak('不错哦! 差一点就满分了！');
-            } else if (gameState.score >= gameState.questionCount * 6) {
-                encouragementText = '及格了! 宝贝继续加油! 💪';
-                encouragementClass = 'average';
+            } else if (gameState.score >= full * 0.6) {
+                msg = '及格了! 宝贝继续加油! 💪';
+                cls = 'average';
                 speak('及格了! 宝贝继续加油! ');
             } else {
-                encouragementText = '别灰心! 你会更棒的! 🌈';
-                encouragementClass = 'needpractice';
+                msg = '别灰心! 你会更棒的! 🌈';
+                cls = 'needpractice';
                 speak('别灰心! 你会更棒的!！');
             }
-
-            elements.encouragement.textContent = encouragementText;
-            elements.encouragement.className = `encouragement ${encouragementClass}`;
-
-            // 显示本次挑战的错题回顾
+            elements.encouragement.textContent = msg;
+            elements.encouragement.className = `encouragement ${cls}`;
             showReview();
         }
 
         function showReview() {
-            // 此处的 showReview 仍然用于显示当前挑战的结果
-            // 使用新的 review-detail 容器包裹错题
-            let reviewHTML = '<div class="review-detail"><h3>本次挑战回顾</h3>';
-
-            for (let i = 0; i < gameState.questionCount; i++) {
-                const q = gameState.questions[i];
-                const userAnswer = gameState.userAnswers[i];
-                const correct = userAnswer === q.answer;
-                const unanswered = userAnswer === null;
-
-                let className = '';
-                let statusText = '';
-
+            let html = '<div class="review-detail"><h3>本次挑战回顾</h3>';
+            gameState.questions.forEach((q, i) => {
+                const ua = gameState.userAnswers[i];
+                const ca = q.answer;
+                const correct = ua === ca;
+                const unanswered = ua === null;
+                let cls = '', txt = '';
                 if (unanswered) {
-                    className = 'unanswered';
-                    statusText = `未作答，正确答案: ${q.answer}`;
+                    cls = 'unanswered';
+                    txt = `未作答，正确答案: ${ca}`;
                 } else if (correct) {
-                    className = 'correct';
-                    statusText = '✓ 正确!';
+                    cls = 'correct';
+                    txt = '✓ 正确!';
                 } else {
-                    className = 'incorrect';
-                    statusText = `✗ 你的答案: ${userAnswer}, 正确答案: ${q.answer}`;
+                    cls = 'incorrect';
+                    txt = `✗ 你的答案: ${ua}, 正确答案: ${ca}`;
                 }
-
-                // 使用 review-item, review-question, review-answer 结构
-                reviewHTML += `
-                    <div class="review-item ${className}">
-                        <div class="review-question">Q${i + 1}: ${q.num1} ${q.operation} ${q.num2} = ?</div>
-                        <div class="review-answer">${statusText}</div>
-                    </div>
-                `;
-            }
-            reviewHTML += '</div>'; // 关闭 review-detail 容器
-
-            elements.review.innerHTML = reviewHTML;
+                html += `<div class="review-item ${cls}">
+                            <div class="review-question">Q${i+1}: ${q.num1} ${q.operation} ${q.num2} = ?</div>
+                            <div class="review-answer">${txt}</div>
+                         </div>`;
+            });
+            html += '</div>';
+            elements.review.innerHTML = html;
         }
 
-        // 庆祝动画函数
         function createConfetti() {
             elements.particles.innerHTML = '';
             for (let i = 0; i < 100; i++) {
                 setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = '-10px';
-                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                    particle.style.width = `${Math.random() * 10 + 5}px`;
-                    particle.style.height = particle.style.width;
-                    elements.particles.appendChild(particle);
-                    setTimeout(() => { particle.remove(); }, 2000);
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = `${Math.random()*100}%`;
+                    p.style.top = '-10px';
+                    p.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 60%)`;
+                    p.style.width = `${Math.random()*10+5}px`;
+                    p.style.height = p.style.width;
+                    elements.particles.appendChild(p);
+                    setTimeout(() => p.remove(), 2000);
                 }, i * 20);
             }
         }
@@ -1053,54 +898,40 @@
         function showParticles() {
             for (let i = 0; i < 20; i++) {
                 setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = '-10px';
-                    particle.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 60%)`;
-                    particle.style.width = `${Math.random() * 8 + 4}px`;
-                    particle.style.height = particle.style.width;
-                    elements.particles.appendChild(particle);
-                    setTimeout(() => { particle.remove(); }, 1000);
+                    const p = document.createElement('div');
+                    p.className = 'particle';
+                    p.style.left = `${Math.random()*100}%`;
+                    p.style.top = '-10px';
+                    p.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 60%)`;
+                    p.style.width = `${Math.random()*8+4}px`;
+                    p.style.height = p.style.width;
+                    elements.particles.appendChild(p);
+                    setTimeout(() => p.remove(), 1000);
                 }, i * 50);
             }
         }
 
-        // 事件监听器
+        // 事件监听
         elements.startBtn.addEventListener('click', startGame);
         elements.submitBtn.addEventListener('click', submitAnswer);
         elements.nextBtn.addEventListener('click', nextQuestion);
         elements.readRulesBtn.addEventListener('click', readRules);
-        // 新增历史按钮监听器
         elements.historyBtn.addEventListener('click', showHistoryPage);
 
-        // 键盘 Enter 监听器
-        elements.answerInput.addEventListener('keypress', (e) => {
+        elements.answerInput.addEventListener('keypress', e => {
             if (e.key === 'Enter') {
-                if (!elements.submitBtn.classList.contains('hidden')) {
-                    submitAnswer();
-                } else if (!elements.nextBtn.classList.contains('hidden')) {
-                    nextQuestion();
-                }
+                if (!elements.submitBtn.classList.contains('hidden')) submitAnswer();
+                else if (!elements.nextBtn.classList.contains('hidden')) nextQuestion();
             }
         });
 
-        // 页面加载完成时初始化
         window.onload = function() {
-            // 确保游戏区、结果区和历史区隐藏
             elements.gameArea.classList.add('hidden');
             elements.resultArea.classList.add('hidden');
             elements.historyPage.classList.add('hidden');
-
-            // 确保设置区可见
             elements.setupArea.classList.remove('hidden');
-
-            // 确保开始按钮和历史按钮可见
             elements.startBtn.classList.remove('hidden');
             elements.historyBtn.classList.remove('hidden');
-
-            // 首次加载时不需要立即渲染历史记录，除非用户主动访问历史页面
-            // 首次点击历史按钮时会触发渲染
         };
     </script>
 </body>
