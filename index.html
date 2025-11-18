@@ -457,23 +457,23 @@
     </div>
 <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"></script>
 
-    <script>
-        // ⚠️ 【重要】请将这两个占位符替换成您自己的真实 App ID 和 App Key
-        const LEANCLOUD_APP_ID = 'gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz';
-        const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
-        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
+    <script>
+        // ⚠️ 【重要】请将这两个占位符替换成您自己的真实 App ID 和 App Key
+        const LEANCLOUD_APP_ID = 'gnrrMmiWlgjgfM48TBAFmymM-gzGzoHsz';
+        const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
+        const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord'; // LeanCloud中的存储表名
 
-        if (typeof AV !== 'undefined') {
-        AV.init({
-        appId: LEANCLOUD_APP_ID,
-        appKey: LEANCLOUD_APP_KEY,
-        serverURL: 'https://gnrrmmiw.lc-cn-n1-shared.com'
-    });
-    console.log("LeanCloud SDK 初始化成功!");
-} else {
-    console.error("LeanCloud SDK 加载失败!");
-}
-    </script>
+        if (typeof AV !== 'undefined') {
+            // 简化初始化，移除 serverURL，让 SDK 自动判断，更稳定
+            AV.init({
+                appId: LEANCLOUD_APP_ID,
+                appKey: LEANCLOUD_APP_KEY
+            });
+            console.log("LeanCloud SDK 初始化成功!");
+        } else {
+            console.error("LeanCloud SDK 加载失败!");
+        }
+    </script>
     <div class="particles" id="particles"></div>
 
     <script>
@@ -1105,6 +1105,7 @@
     </script>
 </body>
 </html>
+
 
 
 
