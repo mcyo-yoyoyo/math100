@@ -30,6 +30,7 @@
             max-width: 1000px; /* 增加最大宽度以适应平板 */
             width: 95%;
             text-align: center;
+            position: relative; /* For loading overlay */
         }
 
         h1 {
@@ -310,6 +311,45 @@
             display: none !important;
         }
 
+
+        /* Loading Overlay Styles */
+        #loadingOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 20px;
+        }
+        .spinner {
+          border: 8px solid #f3f3f3;
+          border-top: 8px solid #663399;
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        #initStatusMessage {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #663399;
+            font-weight: bold;
+        }
+        #lcWarning {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #ff9900;
+        }
+
         /* Pad横屏适配 */
         @media (min-width: 768px) and (orientation: landscape) {
             .container {
@@ -384,9 +424,18 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainContainer">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay">
+            <div>
+                <div class="spinner"></div>
+                <div id="initStatusMessage">正在连接服务器...</div>
+                <div id="lcWarning" class="hidden">⚠️ 数据服务暂时不可用，游戏可离线进行。</div>
+            </div>
+        </div>
+
         <!-- 首页区域 -->
-        <div id="setupArea">
+        <div id="setupArea" class="hidden"> <!-- 默认隐藏，等待初始化 -->
             <h1>小百合数学达人养成记 - 100以内±法</h1>
 
             <div class="settings">
@@ -444,7 +493,15 @@
     </div>
 
     <!-- LeanCloud SDK -->
-    <script src="//cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"></script>
+    <!-- 尝试从官方 CDN 加载 -->
+    <script src="https://npmcdn.com/leancloud-storage@4.14.0/dist/av-min.js"></script>
+    <!-- 备用 CDN -->
+    <script>
+        // 如果上面的 script 加载失败，会触发下面这个 fallback
+        if (typeof AV === 'undefined') {
+            document.write('<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.14.0/dist/av-min.js"><\/script>');
+        }
+    </script>
 
     <script>
         // ⚠️ 替换成你的 App ID 和 App Key
@@ -452,17 +509,79 @@
         const LEANCLOUD_APP_KEY = '4rMp4VCKuzBvSiVzzGuVgbUj';
         const LEANCLOUD_CLASS_NAME = 'MathChallengeRecord';
 
-        // ✅ 修复：移除 serverURL 或确保正确配置
-        if (typeof AV !== 'undefined') {
-            AV.init({
-                appId: LEANCLOUD_APP_ID,
-                appKey: LEANCLOUD_APP_KEY
-                // 注意：不要设置 serverURL，除非你有自己的云引擎
+        // 状态标志
+        let leanCloudInitialized = false;
+        let leanCloudAvailable = true; // 初始假设可用
+
+        // 初始化 LeanCloud SDK
+        function initLeanCloud() {
+            return new Promise((resolve, reject) => {
+                if (typeof AV !== 'undefined') {
+                    try {
+                        AV.init({
+                            appId: LEANCLOUD_APP_ID,
+                            appKey: LEANCLOUD_APP_KEY
+                            // 注意：不要设置 serverURL，除非你有自己的云引擎
+                        });
+                        console.log("✅ LeanCloud SDK 初始化成功！");
+                        leanCloudInitialized = true;
+                        resolve(true);
+                    } catch (error) {
+                        console.error("❌ LeanCloud SDK 初始化失败:", error);
+                        leanCloudAvailable = false;
+                        reject(error);
+                    }
+                } else {
+                    console.error("❌ LeanCloud SDK 加载失败！");
+                    leanCloudAvailable = false;
+                    reject(new Error("SDK not loaded"));
+                }
             });
-            console.log("✅ LeanCloud SDK 初始化成功！");
-        } else {
-            console.error("❌ LeanCloud SDK 加载失败！");
         }
+
+        // 等待 LeanCloud 初始化或超时
+        async function waitForLeanCloudInit() {
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => {
+                    console.warn("⏳ LeanCloud 初始化超时");
+                    leanCloudAvailable = false;
+                    reject(new Error("Initialization timeout"));
+                }, 5000); // 5秒超时
+            });
+
+            try {
+                await Promise.race([initLeanCloud(), timeoutPromise]);
+                return true;
+            } catch (error) {
+                console.error("LeanCloud 初始化失败或超时:", error.message);
+                return false;
+            }
+        }
+
+        // 更新初始化界面状态
+        function updateInitUI(success) {
+            const overlay = document.getElementById('loadingOverlay');
+            const statusMsg = document.getElementById('initStatusMessage');
+            const warningMsg = document.getElementById('lcWarning');
+
+            if (success) {
+                statusMsg.textContent = "连接成功!";
+                statusMsg.style.color = "#00cc66";
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.getElementById('setupArea').classList.remove('hidden'); // 显示主界面
+                }, 500); // 短暂显示成功信息
+            } else {
+                statusMsg.textContent = "连接服务器失败";
+                statusMsg.style.color = "#ff3333";
+                warningMsg.classList.remove('hidden'); // 显示警告信息
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.getElementById('setupArea').classList.remove('hidden'); // 即使失败也显示主界面，但功能受限
+                }, 1500);
+            }
+        }
+
     </script>
 
     <div class="particles" id="particles"></div>
@@ -506,27 +625,45 @@
             readRulesBtn: document.getElementById('readRulesBtn')
         };
 
+
         // =========================================================
-        // 📂 历史记录管理功能
+        // 📂 历史记录管理功能 (增强版)
         // =========================================================
 
         async function loadHistory() {
-            if (typeof AV === 'undefined') return [];
+            // 检查 LeanCloud 是否可用
+            if (!leanCloudInitialized || typeof AV === 'undefined') {
+                console.warn("LeanCloud 未初始化或不可用，加载本地历史记录...");
+                // 可以在这里实现加载浏览器 localStorage 中的最近记录作为备选
+                // 例如:
+                // const localHistory = JSON.parse(localStorage.getItem('mathChallengeLocalHistory') || '[]');
+                // return localHistory.slice(0, 20); // 返回最多20条
+                return []; // 当前简化处理，直接返回空数组
+            }
+
             const query = new AV.Query(LEANCLOUD_CLASS_NAME);
             query.descending('createdAt');
             query.limit(20);
             try {
                 const results = await query.find();
+                console.log("✅ 历史记录加载成功");
                 return results.map(item => item.toJSON());
             } catch (error) {
-                console.error("加载历史记录失败:", error);
+                console.error("❌ 加载历史记录失败:", error);
+                alert("获取历史记录时遇到问题，请稍后再试。");
                 return [];
             }
         }
 
         async function saveChallengeRecord() {
-            if (typeof AV === 'undefined') {
-                console.error("LeanCloud 未初始化");
+             // 检查 LeanCloud 是否可用
+            if (!leanCloudInitialized || typeof AV === 'undefined') {
+                console.warn("LeanCloud 未初始化或不可用，跳过云端保存...");
+                // 可以在这里实现将记录保存到浏览器 localStorage 作为备选
+                // 例如:
+                // const localHistory = JSON.parse(localStorage.getItem('mathChallengeLocalHistory') || '[]');
+                // localHistory.unshift(recordData); // 添加到开头
+                // localStorage.setItem('mathChallengeLocalHistory', JSON.stringify(localHistory.slice(0, 50))); // 最多保留50条
                 return;
             }
 
@@ -555,8 +692,10 @@
             try {
                 await record.save();
                 console.log('✅ 挑战记录已成功保存至云端');
+                // alert("成绩已保存到云端！"); // 可选提示
             } catch (error) {
                 console.error('❌ 保存记录失败:', error);
+                alert("保存成绩时遇到问题，请检查网络连接。");
             }
         }
 
@@ -925,14 +1064,35 @@
             }
         });
 
-        window.onload = function() {
+
+       // 应用启动流程
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log("🚀 应用启动中...");
+            // 先隐藏所有内容区域
+            elements.setupArea.classList.add('hidden');
             elements.gameArea.classList.add('hidden');
             elements.resultArea.classList.add('hidden');
             elements.historyPage.classList.add('hidden');
-            elements.setupArea.classList.remove('hidden');
-            elements.startBtn.classList.remove('hidden');
-            elements.historyBtn.classList.remove('hidden');
-        };
+            // 显示加载遮罩
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            // 等待 LeanCloud 初始化
+            const lcSuccess = await waitForLeanCloudInit();
+
+            // 更新 UI 状态
+            updateInitUI(lcSuccess);
+
+            // 可以根据 leanCloudAvailable 的值来决定是否启用某些依赖云端的功能按钮
+            if (!leanCloudAvailable) {
+                 elements.historyBtn.disabled = true;
+                 elements.historyBtn.title = "数据服务不可用";
+                 console.warn("历史记录功能已禁用");
+            } else {
+                 elements.historyBtn.disabled = false;
+                 elements.historyBtn.title = "";
+            }
+
+        });
     </script>
 </body>
 </html>
