@@ -426,15 +426,17 @@
 
         <!-- 游戏进行区域 -->
         <div id="gameArea" class="hidden">
-            <div class="timer" id="timer">30</div>
-            <div class="score" id="score">得分: 0</div>
-            <div class="progress" id="progress">第1题/共10题</div>
-            <div class="question" id="question">25 + 37 = ?</div>
-            <input type="number" id="answerInput" class="answer-input" placeholder="输入答案">
-            <div class="feedback" id="feedback"></div>
-            <button id="submitBtn" class="btn btn-submit hidden">提交答案</button>
-            <button id="nextBtn" class="btn btn-next hidden">下一题</button>
-        </div>
+        <div class="timer" id="timer">30</div>
+        <div class="score" id="score">得分: 0</div>
+        <div class="progress" id="progress">第1题/共10题</div>
+        <div class="question" id="question">25 + 37 = ?</div>
+        <form id="answerForm">
+        <input type="number" id="answerInput" class="answer-input" placeholder="输入答案" autocomplete="off">
+        <div class="feedback" id="feedback"></div>
+        <button type="submit" id="submitBtn" class="btn btn-submit hidden">提交答案</button>
+        </form>
+        <button id="nextBtn" class="btn btn-next hidden">下一题</button>
+</div>
 
         <!-- 游戏结果区域 -->
         <div id="resultArea" class="result hidden">
@@ -491,14 +493,17 @@
             isGameActive: false
         };
 
-        // DOM元素
-        const elements = {
-            timeLimit: document.getElementById('timeLimit'),
-            questionCount: document.getElementById('questionCount'),
-            setupArea: document.getElementById('setupArea'),
-            gameArea: document.getElementById('gameArea'),
-            resultArea: document.getElementById('resultArea'),
-            // 新增历史页面DOM元素
+       // DOM元素
+const elements = {
+    timeLimit: document.getElementById('timeLimit'),
+    questionCount: document.getElementById('questionCount'),
+    setupArea: document.getElementById('setupArea'),
+    gameArea: document.getElementById('gameArea'),
+    // *** 新增的这一行 ***
+    answerForm: document.getElementById('answerForm'), 
+    // *** 结束新增 ***
+    resultArea: document.getElementById('resultArea'),
+    // 新增历史页面DOM元素
             historyPage: document.getElementById('historyPage'),
             historyListOnPage: document.getElementById('historyListOnPage'),
             historyBtn: document.getElementById('historyBtn'),
@@ -1104,6 +1109,24 @@
             // 首次加载时不需要立即渲染历史记录，除非用户主动访问历史页面
             // 首次点击历史按钮时会触发渲染
         };
-    </script>
-</body>
-</html>
+        // =========================================================
+        // 🎯 修复回车键自动提交 (新增代码)
+        // =========================================================
+
+// 监听表单的提交事件
+const answerForm = document.getElementById('answerForm');
+
+if (answerForm) {
+    answerForm.addEventListener('submit', function(event) {
+        // 关键步骤：阻止浏览器的默认提交行为（即阻止页面刷新/闪退）
+        event.preventDefault(); 
+
+        // 只有在游戏进行中且提交按钮可见时，才调用提交答案的函数
+        if (gameState.isGameActive && !elements.submitBtn.classList.contains('hidden')) {
+            submitAnswer(); 
+        }
+    });
+}
+ </script>
+ </body>
+ </html>
