@@ -782,12 +782,12 @@
             oscillator.stop(audioContext.currentTime + 0.8);
         }
 
-       // 修复语音播报功能
+     // 修复语音播报功能
         function speak(text) {
             if ('speechSynthesis' in window) {
-                // 必须在用户交互的函数内同步执行 cancel 和 speak
+                // 等待语音引擎准备就绪
                 if (speechSynthesis.speaking) {
-                    speechSynthesis.cancel(); // 取消之前的语音，保持同步
+                    speechSynthesis.cancel(); // 取消之前的语音
                 }
 
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -795,11 +795,12 @@
                 utterance.rate = 0.8; // 语速稍慢，便于理解
                 utterance.pitch = 1.2; // 音调稍高，更亲切
 
-                // **核心修改：立即调用 speak，移除 setTimeout**
-                speechSynthesis.speak(utterance);
-            } else {
-                console.warn("当前浏览器不支持 Speech Synthesis API.");
+                // 语音播报前的准备
+                setTimeout(() => { // <-- 移除这个 setTimeout
+                    speechSynthesis.speak(utterance);
+                }, 50); // 移除这个延迟
             }
+        }
 
         // 读取游戏规则
         function readRules() {
@@ -1105,6 +1106,7 @@
     </script>
 </body>
 </html>
+
 
 
 
