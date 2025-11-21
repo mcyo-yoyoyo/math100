@@ -982,7 +982,7 @@ function updateTimer() {
             elements.nextBtn.classList.remove('hidden');
         }
 
-       // 新的 nextQuestion 函数（已修复跳题 bug）
+        // 新的 nextQuestion 函数（已修复跳题 bug）
 function nextQuestion() {
     // 先检查是否已经到最后了
     if (gameState.currentQuestion + 1 >= gameState.questionCount) {
@@ -1007,7 +1007,6 @@ function nextQuestion() {
 
     // 显示新题目
     displayCurrentQuestion();
-}
 }
 
        async function endGame() { // <-- 变化点 1: 添加 async
@@ -1187,4 +1186,3 @@ if (answerForm) {
  </script>
  </body>
  </html>
-
