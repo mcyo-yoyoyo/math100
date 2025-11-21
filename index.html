@@ -925,7 +925,7 @@ function updateTimer() {
     if (gameState.timeLeft <= 0) {
         // 1. 停止计时器
         clearInterval(gameState.timer);
-        gameState.timer = null; // 清除计时器引用
+        gameState.timer = null;
         
         // 2. 锁定当前题目作答
         elements.answerInput.disabled = true;
@@ -935,24 +935,16 @@ function updateTimer() {
         // 3. 记录未作答状态
         const currentIdx = gameState.currentQuestion;
         if (gameState.userAnswers[currentIdx] === null) {
-            // 保持为 null 表示未作答
             elements.feedback.textContent = '⏰ 时间到，未作答！';
             elements.feedback.className = 'feedback incorrect';
             speak('时间到，未作答！');
         }
 
-        // 4. 将当前题目索引移到下一题，为点击“下一题”做准备
-        // 关键修复：当时间到期时，我们预先处理索引。
-        gameState.currentQuestion++; 
+        // ✅ 移除了这行：gameState.currentQuestion++;  // 不再提前自增！
 
-        // 5. 设置下一题或结束游戏的按钮文本和行为
-        if (gameState.currentQuestion >= gameState.questionCount) {
-            elements.nextBtn.textContent = '查看结果';
-            elements.nextBtn.onclick = endGame; // 最后一题时间到，点击结束游戏
-        } else {
-            elements.nextBtn.textContent = '下一题';
-            elements.nextBtn.onclick = nextQuestion; // 点击按钮直接显示下一题（索引已提前增加）
-        }
+        // 4. 设置按钮行为：点击“下一题”时再处理索引
+        elements.nextBtn.textContent = '下一题';
+        elements.nextBtn.onclick = nextQuestion; // 统一由 nextQuestion 处理跳转
     }
 }
 
@@ -986,28 +978,31 @@ function updateTimer() {
 
         // 新的 nextQuestion 函数 (替换原来的)
 function nextQuestion() {
-    // 检查是否已经到达最后一题（在 updateTimer 中已预先检查并设置了 endGame）
+    // 1. 先增加题目索引
+    gameState.currentQuestion++;
+
+    // 2. 判断是否已全部完成
     if (gameState.currentQuestion >= gameState.questionCount) {
         endGame();
         return;
     }
 
-    // 1. 重置计时器和状态
+    // 3. 重置当前题倒计时
     gameState.timeLeft = gameState.timeLimit;
     elements.timer.textContent = gameState.timeLeft;
 
-    // 2. 重新启动单题计时器
+    // 4. 重启计时器
     if (gameState.timer) {
         clearInterval(gameState.timer);
     }
     gameState.timer = setInterval(updateTimer, 1000);
 
-    // 3. 切换按钮和输入框状态
+    // 5. 更新界面状态
     elements.answerInput.disabled = false;
-    elements.submitBtn.classList.remove('hidden'); // 显示提交按钮
-    elements.nextBtn.classList.add('hidden'); // 隐藏下一题按钮
+    elements.submitBtn.classList.remove('hidden');
+    elements.nextBtn.classList.add('hidden');
 
-    // 4. 显示下一题 (索引已经在 updateTimer 中被增加，所以这里直接显示即可)
+    // 6. 显示当前题目
     displayCurrentQuestion();
 }
 }
