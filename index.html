@@ -907,27 +907,30 @@ function updateTimer() {
     gameState.timeLeft--;
     elements.timer.textContent = gameState.timeLeft;
 
-    if (gameState.timeLeft <= 0) {
+    if (gameState.timeLeft <= 0 && gameState.isGameActive) {
         clearInterval(gameState.timer); // 停止计时器
 
-        // 禁用输入框和按钮，防止继续操作
+        // 标记当前题为“未答”
+        const currentIdx = gameState.currentQuestion;
+        if (gameState.userAnswers[currentIdx] === null) {
+            gameState.userAnswers[currentIdx] = null;
+            elements.feedback.textContent = '⏰ 时间到，本题已锁定！';
+            elements.feedback.className = 'feedback incorrect';
+            speak('时间到，本题已锁定！');
+        }
+
+        // 锁定当前题输入
         elements.answerInput.disabled = true;
         elements.submitBtn.classList.add('hidden');
         elements.nextBtn.classList.remove('hidden');
 
-        // 如果当前题目还没答，就自动标记为“未答”
-        if (gameState.userAnswers[gameState.currentQuestion] === null) {
-            gameState.userAnswers[gameState.currentQuestion] = null;
-            elements.feedback.textContent = '时间到，自动提交！';
-            elements.feedback.className = 'feedback incorrect';
-            speak('时间到，自动提交！');
-        }
-
-        // 无论是否已答，都显示“下一题”按钮，并绑定为结束游戏
-        elements.nextBtn.textContent = '查看结果';
-        elements.nextBtn.onclick = function() {
-            endGame();
+        // “下一题”按钮正常进入下一题（不会直接结束）
+        elements.nextBtn.textContent = '下一题';
+        elements.nextBtn.onclick = function () {
+            nextQuestion(); // 继续下一题
         };
+
+        // ⚠️ 注意：不再在这里调用 endGame()
     }
 }
 
@@ -1149,4 +1152,5 @@ if (answerForm) {
  </script>
  </body>
  </html>
+
 
