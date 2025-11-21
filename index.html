@@ -872,65 +872,85 @@ const elements = {
             elements.feedback.className = 'feedback';
         }
 
-        function startGame() {
-            gameState.timeLimit = parseInt(elements.timeLimit.value) || 30;
-            gameState.questionCount = parseInt(elements.questionCount.value) || 10;
-            gameState.currentQuestion = 0;
-            gameState.score = 0;
-            gameState.timeLeft = gameState.timeLimit;
-            gameState.isGameActive = true;
+// 新的 startGame 函数 (替换原来的)
+function startGame() {
+    // 1. 设置参数
+    const newTimeLimit = parseInt(elements.timeLimit.value) || 60; // 读取设置的每题时间
+    gameState.timeLimit = newTimeLimit; // timeLimit 变量现在代表“每题时间”
+    gameState.questionCount = parseInt(elements.questionCount.value) || 10;
+    
+    // 2. 初始化游戏状态
+    gameState.currentQuestion = 0;
+    gameState.score = 0;
+    gameState.timeLeft = newTimeLimit; // 重置当前题目倒计时
+    gameState.isGameActive = true;
 
-            initializeQuestions();
+    initializeQuestions();
 
-            elements.timer.textContent = gameState.timeLeft;
-            elements.score.textContent = `得分: ${gameState.score}`;
+    elements.timer.textContent = gameState.timeLeft;
+    elements.score.textContent = `得分: ${gameState.score}`;
 
-            // 隐藏设置区域 (包括历史按钮)
-            elements.setupArea.classList.add('hidden');
+    // 3. 页面切换
+    elements.setupArea.classList.add('hidden');
+    elements.gameArea.classList.remove('hidden');
+    elements.resultArea.classList.add('hidden');
+    elements.historyPage.classList.add('hidden');
 
-            elements.gameArea.classList.remove('hidden');
-            elements.resultArea.classList.add('hidden');
-            elements.historyPage.classList.add('hidden'); // 确保历史页也隐藏
+    // 4. 启动单题计时器（全局计时器被取消，现在只管理当前题的倒计时）
+    if (gameState.timer) { 
+        clearInterval(gameState.timer);
+    }
+    gameState.timer = setInterval(updateTimer, 1000); // 启动计时器
 
-            if (gameState.timer) {
-                clearInterval(gameState.timer);
-            }
-            gameState.timer = setInterval(updateTimer, 1000);
+    // 5. 显示第一题并更新按钮状态
+    displayCurrentQuestion();
+    elements.answerInput.disabled = false; // 确保输入框可用
+    elements.nextBtn.classList.add('hidden'); // 隐藏下一题按钮
+    elements.submitBtn.classList.remove('hidden'); // 显示提交按钮
+    elements.startBtn.classList.add('hidden');
+}
 
-            displayCurrentQuestion();
-
-            elements.startBtn.classList.add('hidden');
-            elements.submitBtn.classList.remove('hidden');
-        }
-
+// 新的 updateTimer 函数 (替换原来的)
 function updateTimer() {
+    // 检查游戏是否仍在进行
+    if (!gameState.isGameActive) {
+        clearInterval(gameState.timer);
+        return;
+    }
+    
     gameState.timeLeft--;
     elements.timer.textContent = gameState.timeLeft;
 
-    if (gameState.timeLeft <= 0 && gameState.isGameActive) {
-        clearInterval(gameState.timer); // 停止计时器
+    // 检查当前题目时间是否到期
+    if (gameState.timeLeft <= 0) {
+        // 1. 停止计时器
+        clearInterval(gameState.timer); 
+        gameState.timer = null; // 清除计时器引用
+        
+        // 2. 锁定当前题目作答
+        elements.answerInput.disabled = true;
+        elements.submitBtn.classList.add('hidden');
+        elements.nextBtn.classList.remove('hidden');
 
-        // 标记当前题为“未答”
+        // 3. 记录未作答状态（如果之前没有提交过）
         const currentIdx = gameState.currentQuestion;
         if (gameState.userAnswers[currentIdx] === null) {
-            gameState.userAnswers[currentIdx] = null;
+            gameState.userAnswers[currentIdx] = null; // 保持为 null 表示未作答
             elements.feedback.textContent = '⏰ 时间到，本题已锁定！';
             elements.feedback.className = 'feedback incorrect';
             speak('时间到，本题已锁定！');
         }
 
-        // 锁定当前题输入
-        elements.answerInput.disabled = true;
-        elements.submitBtn.classList.add('hidden');
-        elements.nextBtn.classList.remove('hidden');
-
-        // “下一题”按钮正常进入下一题（不会直接结束）
-        elements.nextBtn.textContent = '下一题';
-        elements.nextBtn.onclick = function () {
-            nextQuestion(); // 继续下一题
-        };
-
-        // ⚠️ 注意：不再在这里调用 endGame()
+        // 4. 设置下一题或结束游戏的按钮文本
+        if (gameState.currentQuestion + 1 >= gameState.questionCount) {
+            elements.nextBtn.textContent = '查看结果';
+            elements.nextBtn.onclick = endGame; // 最后一题时间到，点击结束游戏
+        } else {
+            elements.nextBtn.textContent = '下一题';
+            elements.nextBtn.onclick = function () {
+                nextQuestion(); // 继续下一题
+            };
+        }
     }
 }
 
@@ -962,18 +982,29 @@ function updateTimer() {
             elements.nextBtn.classList.remove('hidden');
         }
 
-        function nextQuestion() {
-            gameState.currentQuestion++;
+        // 新的 nextQuestion 函数 (替换原来的)
+function nextQuestion() {
+    gameState.currentQuestion++;
 
-            if (gameState.currentQuestion >= gameState.questionCount) {
-                endGame();
-            } else {
-                elements.answerInput.disabled = false;
-                elements.nextBtn.classList.add('hidden');
-                elements.submitBtn.classList.remove('hidden');
-                displayCurrentQuestion();
-            }
+    if (gameState.currentQuestion >= gameState.questionCount) {
+        // 所有题目都答完了，结束游戏
+        endGame();
+    } else {
+        // 1. 重置当前题的计时器
+        if (gameState.timer) {
+            clearInterval(gameState.timer);
         }
+        gameState.timeLeft = gameState.timeLimit; // 重置为每题时间限制
+        gameState.timer = setInterval(updateTimer, 1000); // 启动新一题的计时器
+
+        // 2. 更新显示和输入状态
+        elements.answerInput.disabled = false;
+        elements.submitBtn.classList.remove('hidden');
+        elements.nextBtn.classList.add('hidden');
+        
+        displayCurrentQuestion();
+    }
+}
 
        async function endGame() { // <-- 变化点 1: 添加 async
             gameState.isGameActive = false;
@@ -1152,3 +1183,4 @@ if (answerForm) {
  </script>
  </body>
  </html>
+
