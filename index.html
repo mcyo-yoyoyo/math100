@@ -403,7 +403,7 @@
             <div class="settings">
                 <div class="setting-item">
                     <label for="timeLimit">答题时间（秒）：</label>
-                    <input type="number" id="timeLimit" min="10" max="300" value="30">
+                    <input type="number" id="timeLimit" min="10" max="300" value="60">
                 </div>
                 <div class="setting-item">
                     <label for="questionCount">题目数量：</label>
@@ -426,7 +426,7 @@
 
         <!-- 游戏进行区域 -->
         <div id="gameArea" class="hidden">
-        <div class="timer" id="timer">30</div>
+        <div class="timer" id="timer">60</div>
         <div class="score" id="score">得分: 0</div>
         <div class="progress" id="progress">第1题/共10题</div>
         <div class="question" id="question">25 + 37 = ?</div>
@@ -903,14 +903,33 @@ const elements = {
             elements.submitBtn.classList.remove('hidden');
         }
 
-        function updateTimer() {
-            gameState.timeLeft--;
-            elements.timer.textContent = gameState.timeLeft;
+function updateTimer() {
+    gameState.timeLeft--;
+    elements.timer.textContent = gameState.timeLeft;
 
-            if (gameState.timeLeft <= 0) {
-                endGame();
-            }
+    if (gameState.timeLeft <= 0) {
+        clearInterval(gameState.timer); // 停止计时器
+
+        // 禁用输入框和按钮，防止继续操作
+        elements.answerInput.disabled = true;
+        elements.submitBtn.classList.add('hidden');
+        elements.nextBtn.classList.remove('hidden');
+
+        // 如果当前题目还没答，就自动标记为“未答”
+        if (gameState.userAnswers[gameState.currentQuestion] === null) {
+            gameState.userAnswers[gameState.currentQuestion] = null;
+            elements.feedback.textContent = '时间到，自动提交！';
+            elements.feedback.className = 'feedback incorrect';
+            speak('时间到，自动提交！');
         }
+
+        // 无论是否已答，都显示“下一题”按钮，并绑定为结束游戏
+        elements.nextBtn.textContent = '查看结果';
+        elements.nextBtn.onclick = function() {
+            endGame();
+        };
+    }
+}
 
         function submitAnswer() {
             if (!gameState.isGameActive) return; // 防止重复提交或游戏结束提交
@@ -1130,3 +1149,4 @@ if (answerForm) {
  </script>
  </body>
  </html>
+
