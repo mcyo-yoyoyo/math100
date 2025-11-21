@@ -982,28 +982,32 @@ function updateTimer() {
             elements.nextBtn.classList.remove('hidden');
         }
 
-        // 新的 nextQuestion 函数 (替换原来的)
+       // 新的 nextQuestion 函数（已修复跳题 bug）
 function nextQuestion() {
-    gameState.currentQuestion++;
-
-    if (gameState.currentQuestion >= gameState.questionCount) {
-        // 所有题目都答完了，结束游戏
+    // 先检查是否已经到最后了
+    if (gameState.currentQuestion + 1 >= gameState.questionCount) {
         endGame();
-    } else {
-        // 1. 重置当前题的计时器
-        if (gameState.timer) {
-            clearInterval(gameState.timer);
-        }
-        gameState.timeLeft = gameState.timeLimit; // 重置为每题时间限制
-        gameState.timer = setInterval(updateTimer, 1000); // 启动新一题的计时器
-
-        // 2. 更新显示和输入状态
-        elements.answerInput.disabled = false;
-        elements.submitBtn.classList.remove('hidden');
-        elements.nextBtn.classList.add('hidden');
-        
-        displayCurrentQuestion();
+        return;
     }
+
+    // 只有还有题目，才进行切换
+    gameState.currentQuestion++; // 现在才递增
+
+    // 重置当前题倒计时
+    if (gameState.timer) {
+        clearInterval(gameState.timer);
+    }
+    gameState.timeLeft = gameState.timeLimit; // 重置为每题时间限制
+    gameState.timer = setInterval(updateTimer, 1000); // 启动新一题的计时器
+
+    // 更新界面状态
+    elements.answerInput.disabled = false;
+    elements.submitBtn.classList.remove('hidden');
+    elements.nextBtn.classList.add('hidden');
+
+    // 显示新题目
+    displayCurrentQuestion();
+}
 }
 
        async function endGame() { // <-- 变化点 1: 添加 async
@@ -1183,3 +1187,4 @@ if (answerForm) {
  </script>
  </body>
  </html>
+
